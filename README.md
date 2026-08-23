@@ -4,7 +4,6 @@
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?logo=springboot&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-blue)
 
 A full-stack portfolio application that showcases selected GitHub projects, kept in sync automatically through GitHub webhooks.
 
@@ -76,7 +75,3 @@ portfolio/
 - [ ] Project list/detail UI with previews
 - [ ] Docker Compose for local development
 - [ ] CI pipeline
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
