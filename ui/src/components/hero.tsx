@@ -112,7 +112,7 @@ export function Hero() {
       />
 
       <div className="relative mx-auto w-full max-w-6xl px-4 py-24 sm:px-6">
-        <div className="flex max-w-3xl flex-col gap-6">
+        <div className="flex max-w-3xl origin-center flex-col gap-6 md:scale-[1.4] md:origin-left">
           <div className="font-mono text-sm text-primary/80">
             <span className="text-muted-foreground">alex@dev:~$</span>{" "}
             {prefersReduced ? (
