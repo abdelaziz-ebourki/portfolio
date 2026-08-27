@@ -200,8 +200,10 @@ export function TerminalSection() {
                 </span>
                 <span
                   aria-hidden
-                  className="ml-1 inline-block h-3.5 w-1.5 shrink-0 translate-y-0.5 animate-blink bg-primary"
-                />
+                  className="ml-1 inline-block shrink-0 animate-blink text-primary"
+                >
+                  █
+                </span>
               </span>
             </div>
           </form>

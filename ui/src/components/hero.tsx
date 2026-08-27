@@ -2,11 +2,13 @@ import { useEffect, useState } from "react"
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
-import { useTypewriter } from "@/lib/use-typewriter"
 import { Button } from "@/components/ui/button"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error — Topography is JS (react-bits) with no types
 import Topography from "@/components/Topography"
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error — TextType is JS (react-bits) with no types
+import TextType from "@/components/TextType"
 import { ArrowDown, Mail } from "lucide-react"
 import { GithubMark as Github, LinkedinMark as Linkedin } from "@/components/icons"
 
@@ -46,7 +48,6 @@ export function Hero() {
   const { t } = useI18n()
   const isLight = useIsLight()
   const prefersReduced = usePrefersReducedMotion()
-  const typed = useTypewriter("whoami", { speed: 90, startDelay: 600 })
 
   const topographyProps = isLight
     ? {
@@ -114,28 +115,75 @@ export function Hero() {
         <div className="flex max-w-3xl flex-col gap-6">
           <div className="font-mono text-sm text-primary/80">
             <span className="text-muted-foreground">alex@dev:~$</span>{" "}
-            {typed.output}
-            {typed.isTyping && (
-              <span
-                aria-hidden
-                className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-blink bg-primary"
+            {prefersReduced ? (
+              <span className="text-primary/80">whoami</span>
+            ) : (
+              <TextType
+                key="whoami"
+                text="whoami"
+                as="span"
+                className="font-mono text-sm text-primary/80"
+                typingSpeed={68}
+                initialDelay={700}
+                loop={false}
+                showCursor
+                cursorCharacter="█"
+                cursorClassName="text-primary"
+                cursorBlinkDuration={0.55}
               />
             )}
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight text-balance crt-glow sm:text-5xl md:text-6xl">
-            {persona.name}
-            <span className="text-primary">_</span>
-            <span
-              aria-hidden
-              className="ml-1 inline-block h-[0.9em] w-[3px] translate-y-[0.12em] animate-blink bg-primary"
-            />
+            {prefersReduced ? (
+              <span>
+                {persona.name}
+                <span className="ml-1 inline-block animate-blink text-primary" aria-hidden>
+                  █
+                </span>
+              </span>
+            ) : (
+              <TextType
+                key={persona.name}
+                text={persona.name}
+                as="span"
+                className="font-bold tracking-tight crt-glow"
+                typingSpeed={62}
+                initialDelay={1700}
+                loop={false}
+                showCursor
+                cursorCharacter="█"
+                cursorClassName="text-primary"
+                cursorBlinkDuration={0.55}
+              />
+            )}
           </h1>
 
           <p className="max-w-xl text-lg text-muted-foreground text-pretty">
-            <span className="font-medium text-foreground">{t(persona.role)}</span>
-            {" — "}
-            {t(persona.tagline)}
+            {prefersReduced ? (
+              <>
+                <span className="font-medium text-foreground">{t(persona.role)}</span>
+                {" — "}
+                {t(persona.tagline)}
+              </>
+            ) : (
+              <>
+                <TextType
+                  key={t(persona.role)}
+                  text={t(persona.role)}
+                  as="span"
+                  className="font-medium text-foreground"
+                  typingSpeed={38}
+                  initialDelay={3400}
+                  loop={false}
+                  showCursor
+                  cursorCharacter="█"
+                  cursorClassName="text-primary"
+                  cursorBlinkDuration={0.55}
+                />
+                <span className="ml-1 inline">{" — "}{t(persona.tagline)}</span>
+              </>
+            )}
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
