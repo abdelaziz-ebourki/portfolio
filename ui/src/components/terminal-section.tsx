@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react"
+import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react"
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
+import { TAB_COMMANDS } from "@/lib/terminal-commands"
 import { SectionHeading } from "@/components/section-heading"
+import { TerminalSidePanel } from "@/components/terminal-side-panel"
 import { TerminalWindow } from "@/components/terminal-window"
 
 type LineKind = "input" | "output" | "error" | "success"
@@ -12,19 +14,6 @@ type Line = {
   kind: LineKind
   content: string
 }
-
-const COMMANDS = [
-  "help",
-  "whoami",
-  "about",
-  "skills",
-  "projects",
-  "experience",
-  "education",
-  "contact",
-  "ls",
-  "clear",
-] as const
 
 let lineId = 0
 const nextId = () => ++lineId
@@ -55,14 +44,14 @@ export function TerminalSection() {
     if (el) el.scrollTop = el.scrollHeight
   }, [lines])
 
-  function respond(output: string[], kind: LineKind = "output") {
+  const respond = useCallback((output: string[], kind: LineKind = "output") => {
     setLines((prev) => [
       ...prev,
       ...output.map((content) => ({ id: nextId(), kind, content })),
     ])
-  }
+  }, [])
 
-  function run(raw: string) {
+  const run = useCallback((raw: string) => {
     const input = raw.trim()
     setLines((prev) => [...prev, { id: nextId(), kind: "input", content: raw }])
 
@@ -119,7 +108,7 @@ export function TerminalSection() {
       default:
         respond([`${t(ui.terminal.unknown)} ${command}`, t(ui.terminal.hint)], "error")
     }
-  }
+  }, [t, respond])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -147,7 +136,7 @@ export function TerminalSection() {
       }
     } else if (event.key === "Tab") {
       event.preventDefault()
-      const match = COMMANDS.find((candidate) => candidate.startsWith(value.trim().toLowerCase()))
+      const match = TAB_COMMANDS.find((candidate) => candidate.startsWith(value.trim().toLowerCase()))
       if (match) setValue(`${match} `)
     }
   }
@@ -162,46 +151,64 @@ export function TerminalSection() {
     <section id="terminal" className="scroll-mt-20 py-24">
       <SectionHeading eyebrow={ui.terminal.subtitle} title={ui.terminal.title} />
 
-      <TerminalWindow title="guest@alexmoreau: ~" className="mx-auto max-w-3xl">
+      <div className="grid gap-6 lg:grid-cols-[1.55fr_0.85fr] lg:items-stretch">
+        <TerminalWindow title="guest@alexmoreau: ~" className="flex h-full w-full max-w-none flex-col">
         <div
-          className="cursor-text font-mono text-sm leading-relaxed"
+          className="flex min-h-0 flex-1 flex-col cursor-text font-mono text-sm leading-relaxed"
           onClick={() => inputRef.current?.focus()}
         >
           <div
             ref={scrollRef}
-            className="max-h-80 overflow-y-auto pr-2"
+            className="min-h-[20rem] max-h-80 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             aria-live="polite"
             aria-label={t(ui.terminal.ariaLabel)}
           >
             {lines.map((line) => (
-              <p key={line.id} className={lineStyles[line.kind]}>
+              <p key={line.id} className={`${lineStyles[line.kind]} min-w-0 overflow-x-hidden`}>
                 {line.kind === "input" && (
                   <span className="mr-2 select-none text-primary" aria-hidden>
                     $
                   </span>
                 )}
-                <span className="whitespace-pre-wrap break-words">{line.content}</span>
+                <span className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                  {line.content}
+                </span>
               </p>
             ))}
           </div>
 
           <form onSubmit={handleSubmit} className="mt-2 flex items-center gap-2">
             {prompt}
-            <input
-              ref={inputRef}
-              value={value}
-              onChange={(event) => setValue(event.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full bg-transparent text-foreground caret-primary outline-none placeholder:text-muted-foreground/50"
-              placeholder={t(ui.terminal.inputPlaceholder)}
-              aria-label={t(ui.terminal.ariaLabel)}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-            />
+            <div
+              className="relative flex min-w-0 flex-1 items-center"
+              onClick={() => inputRef.current?.focus()}
+            >
+              <input
+                ref={inputRef}
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+                onKeyDown={handleKeyDown}
+                className="absolute inset-0 h-full w-full bg-transparent opacity-0 caret-transparent outline-none"
+                aria-label={t(ui.terminal.ariaLabel)}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+              />
+              <span className="pointer-events-none flex min-w-0 flex-1 items-center">
+                <span className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-foreground">
+                  {value}
+                </span>
+                <span
+                  aria-hidden
+                  className="ml-1 inline-block h-3.5 w-1.5 shrink-0 translate-y-0.5 animate-blink bg-primary"
+                />
+              </span>
+            </div>
           </form>
         </div>
-      </TerminalWindow>
+        </TerminalWindow>
+        <TerminalSidePanel onRun={run} />
+      </div>
     </section>
   )
 }

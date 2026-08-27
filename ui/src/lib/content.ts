@@ -166,6 +166,26 @@ export const ui = {
       en: "cat: nothing to gnaw here — try 'about' or 'projects'.",
       fr: "cat : rien à grignoter ici — essayez 'about' ou 'projects'.",
     },
+    side: {
+      cheatTitle: { en: "cheatsheet", fr: "aide-mémoire" },
+      cheatHint: {
+        en: "Click to run · Tab complete · ↑↓ history",
+        fr: "Cliquer pour exécuter · Tab complète · ↑↓ historique",
+      },
+      commands: {
+        help: { en: "list commands", fr: "lister les commandes" },
+        whoami: { en: "who am I", fr: "qui suis-je" },
+        about: { en: "who I am", fr: "qui je suis" },
+        skills: { en: "daily stack", fr: "stack du jour" },
+        projects: { en: "things I shipped", fr: "ce que j'ai livré" },
+        experience: { en: "where I worked", fr: "où j'ai travaillé" },
+        education: { en: "academic path", fr: "parcours" },
+        contact: { en: "reach me", fr: "me joindre" },
+        ls: { en: "list sections", fr: "lister sections" },
+        clear: { en: "clear screen", fr: "effacer écran" },
+        sudo: { en: "hire me", fr: "me recruter" },
+      } satisfies Record<string, Localized>,
+    },
   } satisfies Record<string, unknown>,
 
   contact: {

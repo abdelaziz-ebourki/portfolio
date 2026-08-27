@@ -23,8 +23,8 @@ export function About() {
           ))}
         </div>
 
-        <TerminalWindow title="~/values.ts" className="h-fit">
-          <pre className="overflow-x-auto font-mono text-[13px] leading-relaxed">
+        <TerminalWindow title="~/values.ts" className="h-fit overflow-hidden">
+          <pre className="overflow-x-hidden font-mono text-[13px] leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] min-w-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <code>
               <span className="text-fuchsia-600 dark:text-fuchsia-400">const</span>{" "}
               <span className="text-sky-700 dark:text-sky-300">alex</span>{" "}
