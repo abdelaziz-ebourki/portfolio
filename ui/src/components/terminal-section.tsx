@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
+import { useTheme } from "@/lib/theme"
 import { TAB_COMMANDS } from "@/lib/terminal-commands"
 import { SectionHeading } from "@/components/section-heading"
 import { TerminalSidePanel } from "@/components/terminal-side-panel"
@@ -26,7 +27,8 @@ const lineStyles: Record<LineKind, string> = {
 }
 
 export function TerminalSection() {
-  const { t } = useI18n()
+  const { t, lang, setLang } = useI18n()
+  const { theme, setTheme, toggleTheme } = useTheme()
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -51,6 +53,7 @@ export function TerminalSection() {
     ])
   }, [])
 
+  // fallow-ignore-next-line complexity -- run handles 12 terminal commands, intentional switch
   const run = useCallback((raw: string) => {
     const input = raw.trim()
     setLines((prev) => [...prev, { id: nextId(), kind: "input", content: raw }])
@@ -59,7 +62,7 @@ export function TerminalSection() {
     setHistory((prev) => [...prev, input])
     setHistoryIndex(null)
 
-    const [command] = input.toLowerCase().split(/\s+/)
+    const [command, arg] = input.toLowerCase().split(/\s+/)
 
     switch (command) {
       case "help":
@@ -89,6 +92,32 @@ export function TerminalSection() {
       case "clear":
         setLines([])
         break
+      case "theme": {
+        if (!arg) {
+          respond([`theme: ${theme} (usage: theme [light|dark|toggle])`], "success")
+        } else if (arg === "toggle") {
+          toggleTheme()
+          respond([`theme → ${theme === "dark" ? "light" : "dark"}`], "success")
+        } else if (arg === "light" || arg === "dark") {
+          setTheme(arg)
+          respond([`theme → ${arg}`], "success")
+        } else {
+          respond(["usage: theme [light|dark|toggle]"], "error")
+        }
+        break
+      }
+      case "lang":
+      case "language": {
+        if (!arg) {
+          respond([`lang: ${lang} (usage: lang [en|fr])`], "success")
+        } else if (arg === "en" || arg === "fr") {
+          setLang(arg)
+          respond([`lang → ${arg}`], "success")
+        } else {
+          respond(["usage: lang [en|fr]"], "error")
+        }
+        break
+      }
       case "rm":
         respond([t(ui.terminal.rmDenied)], "error")
         break
@@ -98,7 +127,7 @@ export function TerminalSection() {
       default:
         respond([`${t(ui.terminal.unknown)} ${command}`, t(ui.terminal.hint)], "error")
     }
-  }, [t, respond])
+  }, [t, respond, theme, lang, setTheme, toggleTheme, setLang])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

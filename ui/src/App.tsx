@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/lib/theme"
 import { I18nProvider } from "@/lib/i18n"
 import { Navbar } from "@/components/navbar"
 import { Hero } from "@/components/hero"
@@ -14,7 +15,8 @@ import { techLogos } from "@/lib/tech-logos"
 
 export default function App() {
   return (
-    <I18nProvider>
+    <ThemeProvider>
+      <I18nProvider>
       <div className="relative min-h-svh bg-background text-foreground antialiased">
         <div aria-hidden className="crt-scanlines" />
         <Navbar />
@@ -56,6 +58,7 @@ export default function App() {
         </main>
         <Footer />
       </div>
-    </I18nProvider>
+      </I18nProvider>
+    </ThemeProvider>
   )
 }

@@ -8,6 +8,8 @@ export const CHEAT_COMMANDS = [
   "contact",
   "ls",
   "clear",
+  "theme",
+  "lang",
 ] as const
 
 export const TAB_COMMANDS = [

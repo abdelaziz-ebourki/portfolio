@@ -118,8 +118,8 @@ export const ui = {
       fr: "commande introuvable :",
     },
     help: {
-      en: "Available commands:\n  about        who I am, in a few lines\n  skills       my daily stack\n  projects     things I shipped\n  education    my academic path\n  contact      how to reach me\n  whoami ls clear",
-      fr: "Commandes disponibles :\n  about        qui je suis, en quelques lignes\n  skills       ma stack du quotidien\n  projects     ce que j'ai livré\n  education    mon parcours\n  contact      comment me joindre\n  whoami ls clear",
+      en: "Available commands:\n  about        who I am, in a few lines\n  skills       my daily stack\n  projects     things I shipped\n  education    my academic path\n  contact      how to reach me\n  whoami ls clear\n  theme        toggle or set theme (light/dark)\n  lang         switch language (en/fr)",
+      fr: "Commandes disponibles :\n  about        qui je suis, en quelques lignes\n  skills       ma stack du quotidien\n  projects     ce que j'ai livré\n  education    mon parcours\n  contact      comment me joindre\n  whoami ls clear\n  theme        changer de thème (light/dark)\n  lang         changer de langue (en/fr)",
     },
     about: {
       en: "Computer Science graduate from Lyon.\nFull-stack: Java & Spring Boot behind, React & TypeScript in front.\nPursuing a Master's in Software Engineering.",
@@ -165,6 +165,8 @@ export const ui = {
         contact: { en: "reach me", fr: "me joindre" },
         ls: { en: "list sections", fr: "lister sections" },
         clear: { en: "clear screen", fr: "effacer écran" },
+        theme: { en: "toggle theme", fr: "changer de thème" },
+        lang: { en: "switch language", fr: "changer de langue" },
       } satisfies Record<string, Localized>,
     },
   } satisfies Record<string, unknown>,

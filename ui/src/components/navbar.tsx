@@ -11,8 +11,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { LanguageSwitcher } from "@/components/language-switcher"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Menu, X } from "lucide-react"
 
 type NavKey = keyof typeof ui.nav
@@ -52,9 +50,7 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1 sm:gap-2">
-          <ThemeToggle />
-          <LanguageSwitcher />
+        <div className="flex items-center gap-2">
           <Button asChild size="sm" className="hidden md:inline-flex">
             <a href={`mailto:${persona.email}`}>{t(ui.hero.ctaContact)}</a>
           </Button>

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ArrowUp } from "lucide-react";
 import { SocialLinks } from "@/components/social-links";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export function Footer() {
 	const { t } = useI18n();
@@ -20,6 +22,11 @@ export function Footer() {
 				<p className="text-center text-sm text-muted-foreground">
 					© {year} {persona.name} · {t(persona.location)}
 				</p>
+
+				<div className="flex items-center gap-2">
+					<ThemeToggle />
+					<LanguageSwitcher />
+				</div>
 
 				<Button
 					asChild
