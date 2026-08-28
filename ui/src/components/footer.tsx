@@ -3,8 +3,8 @@ import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { ArrowUp, Mail } from "lucide-react"
-import { GithubMark as Github, LinkedinMark as Linkedin } from "@/components/icons"
+import { ArrowUp } from "lucide-react"
+import { SocialLinks } from "@/components/social-links"
 
 export function Footer() {
   const { t } = useI18n()
@@ -13,19 +13,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border/60 py-10">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 sm:px-6">
-        <div className="flex items-center gap-1">
-          {[
-            { href: persona.github, label: "GitHub", icon: Github },
-            { href: persona.linkedin, label: "LinkedIn", icon: Linkedin },
-            { href: `mailto:${persona.email}`, label: "Email", icon: Mail },
-          ].map(({ href, label, icon: Icon }) => (
-            <Button key={label} variant="ghost" size="icon" asChild>
-              <a href={href} target="_blank" rel="noreferrer" aria-label={label}>
-                <Icon className="size-4" />
-              </a>
-            </Button>
-          ))}
-        </div>
+        <SocialLinks />
 
         <Separator className="max-w-xs" />
 

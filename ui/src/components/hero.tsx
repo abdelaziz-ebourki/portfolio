@@ -9,8 +9,8 @@ import Topography from "@/components/Topography"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error — TextType is JS (react-bits) with no types
 import TextType from "@/components/TextType"
-import { ArrowDown, Mail } from "lucide-react"
-import { GithubMark as Github, LinkedinMark as Linkedin } from "@/components/icons"
+import { ArrowDown } from "lucide-react"
+import { SocialLinks } from "@/components/social-links"
 
 function useIsLight(): boolean {
   const [isLight, setIsLight] = useState(() =>
@@ -193,19 +193,10 @@ export function Hero() {
             <Button asChild size="lg" variant="outline">
               <a href="#contact">{t(ui.hero.ctaContact)}</a>
             </Button>
-            <div className="ml-1 flex items-center gap-1">
-              {[
-                { href: persona.github, label: "GitHub", icon: Github },
-                { href: persona.linkedin, label: "LinkedIn", icon: Linkedin },
-                { href: `mailto:${persona.email}`, label: "Email", icon: Mail },
-              ].map(({ href, label, icon: Icon }) => (
-                <Button key={label} variant="ghost" size="icon" asChild>
-                  <a href={href} target="_blank" rel="noreferrer" aria-label={label}>
-                    <Icon className="size-4 transition-all hover:text-primary" />
-                  </a>
-                </Button>
-              ))}
-            </div>
+            <SocialLinks
+              className="ml-1"
+              iconClassName="transition-all hover:text-primary"
+            />
           </div>
         </div>
       </div>
