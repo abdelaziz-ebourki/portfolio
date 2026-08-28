@@ -22,6 +22,7 @@ export type LogoLoopNodeLogo = {
   title?: string
 }
 
+// fallow-ignore-next-line unused-type -- public API for consumers
 export type LogoLoopLogo = LogoLoopImageLogo | LogoLoopNodeLogo
 
 function toCssLength(value: number | string | undefined): string | undefined {
