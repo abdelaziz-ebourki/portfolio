@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
@@ -44,45 +44,83 @@ function usePrefersReducedMotion(): boolean {
   return reduced
 }
 
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(() => false)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return
+    const m = window.matchMedia("(max-width: 768px)")
+    const onChange = () => setIsMobile(m.matches)
+    onChange()
+    if (m.addEventListener) m.addEventListener("change", onChange)
+    else m.addListener(onChange)
+    return () => {
+      if (m.removeEventListener) m.removeEventListener("change", onChange)
+      else m.removeListener(onChange)
+    }
+  }, [])
+  return isMobile
+}
+
+function useIsVisible<T extends HTMLElement>(ref: React.RefObject<T | null>): boolean {
+  const [isVisible, setIsVisible] = useState(() => true)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof window === "undefined" || !("IntersectionObserver" in window)) return
+    const io = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0 }
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [ref])
+  return isVisible
+}
+
+// fallow-ignore-next-line complexity -- hero composes 6 theme hooks + FaultyTerminal, intentional orchestration
 export function Hero() {
   const { t } = useI18n()
   const isLight = useIsLight()
   const prefersReduced = usePrefersReducedMotion()
+  const isMobile = useIsMobile()
+  const heroRef = useRef<HTMLElement>(null)
+  const isVisible = useIsVisible(heroRef)
+  const isPaused = prefersReduced || !isVisible
 
   const faultyTerminalProps = isLight
     ? {
         tint: "#4a7a2a",
         brightness: 0.4,
-        curvature: 0.12,
-        scanlineIntensity: 0.28,
-        glitchAmount: 0.7,
-        flickerAmount: 0.35,
-        noiseAmp: 0.55,
+        curvature: 0.08,
+        scanlineIntensity: 0.22,
+        glitchAmount: 0.6,
+        flickerAmount: 0.32,
+        noiseAmp: 0.5,
       }
     : {
         tint: "#7ac23a",
         brightness: 0.5,
-        curvature: 0.18,
-        scanlineIntensity: 0.4,
-        glitchAmount: 1,
-        flickerAmount: 0.55,
-        noiseAmp: 0.85,
+        curvature: 0.1,
+        scanlineIntensity: 0.32,
+        glitchAmount: 0.85,
+        flickerAmount: 0.48,
+        noiseAmp: 0.5,
       }
 
   return (
     <section
+      ref={heroRef}
       id="top"
       className="relative flex min-h-svh flex-col justify-center overflow-hidden pt-16"
     >
       <div aria-hidden className="absolute inset-0">
         <FaultyTerminal
-          key={`${isLight ? "light" : "dark"}-${prefersReduced ? "reduced" : "motion"}`}
+          key={`${isLight ? "light" : "dark"}-${isPaused ? "paused" : "running"}-${isMobile ? "mobile" : "desktop"}`}
           className="absolute inset-0"
           scale={1.15}
           gridMul={[2, 1]}
           digitSize={1.9}
           timeScale={1}
-          pause={prefersReduced}
+          pause={isPaused}
           scanlineIntensity={faultyTerminalProps.scanlineIntensity}
           glitchAmount={faultyTerminalProps.glitchAmount}
           flickerAmount={faultyTerminalProps.flickerAmount}
@@ -92,10 +130,16 @@ export function Hero() {
           curvature={faultyTerminalProps.curvature}
           tint={faultyTerminalProps.tint}
           brightness={faultyTerminalProps.brightness}
-          mouseReact={!prefersReduced}
-          mouseStrength={0.18}
-          pageLoadAnimation={!prefersReduced}
-          dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
+          mouseReact={!isPaused && !isMobile}
+          mouseStrength={0.14}
+          pageLoadAnimation={!isPaused}
+          dpr={
+            typeof window !== "undefined"
+              ? isMobile
+                ? 1
+                : Math.min(window.devicePixelRatio || 1, 2)
+              : 1
+          }
         />
         <div className="pointer-events-none absolute inset-0 bg-background/8 dark:bg-background/12" />
       </div>
