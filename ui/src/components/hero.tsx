@@ -4,8 +4,8 @@ import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error — Topography is JS (react-bits) with no types
-import Topography from "@/components/Topography"
+// @ts-expect-error — FaultyTerminal is JS (react-bits) with no types
+import FaultyTerminal from "@/components/FaultyTerminal"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error — TextType is JS (react-bits) with no types
 import TextType from "@/components/TextType"
@@ -49,26 +49,24 @@ export function Hero() {
   const isLight = useIsLight()
   const prefersReduced = usePrefersReducedMotion()
 
-  const topographyProps = isLight
+  const faultyTerminalProps = isLight
     ? {
-        lowColor: "#eef4e1",
-        midColor: "#4a7a2a",
-        highColor: "#1a2e12",
-        opacity: 0.28,
-        bands: 1.9,
-        thickness: 0.009,
-        glow: 0.32,
-        grainIntensity: 0.02,
+        tint: "#4a7a2a",
+        brightness: 0.4,
+        curvature: 0.12,
+        scanlineIntensity: 0.28,
+        glitchAmount: 0.7,
+        flickerAmount: 0.35,
+        noiseAmp: 0.55,
       }
     : {
-        lowColor: "#0d1a0a",
-        midColor: "#7ac23a",
-        highColor: "#d6ff8a",
-        opacity: 0.42,
-        bands: 1.9,
-        thickness: 0.009,
-        glow: 0.48,
-        grainIntensity: 0.03,
+        tint: "#7ac23a",
+        brightness: 0.5,
+        curvature: 0.18,
+        scanlineIntensity: 0.4,
+        glitchAmount: 1,
+        flickerAmount: 0.55,
+        noiseAmp: 0.85,
       }
 
   return (
@@ -77,39 +75,30 @@ export function Hero() {
       className="relative flex min-h-svh flex-col justify-center overflow-hidden pt-16"
     >
       <div aria-hidden className="absolute inset-0">
-        <Topography
+        <FaultyTerminal
           key={`${isLight ? "light" : "dark"}-${prefersReduced ? "reduced" : "motion"}`}
-          className="absolute inset-0 opacity-100"
-          lowColor={topographyProps.lowColor}
-          midColor={topographyProps.midColor}
-          highColor={topographyProps.highColor}
-          opacity={topographyProps.opacity}
-          bands={topographyProps.bands}
-          thickness={topographyProps.thickness}
-          glow={topographyProps.glow}
-          grainIntensity={topographyProps.grainIntensity}
-          speed={prefersReduced ? 0 : 0.28}
-          morphAmount={prefersReduced ? 0 : 2.4}
-          morphSpeed={prefersReduced ? 0 : 0.045}
-          scale={1.08}
-          pixelSize={1}
-          contrast={2.6}
-          brightness={1}
-          grain
-          mouseInteraction={!prefersReduced}
-          mouseRadius={0.28}
-          mouseStrength={0.34}
+          className="absolute inset-0"
+          scale={1.15}
+          gridMul={[2, 1]}
+          digitSize={1.9}
+          timeScale={1}
+          pause={prefersReduced}
+          scanlineIntensity={faultyTerminalProps.scanlineIntensity}
+          glitchAmount={faultyTerminalProps.glitchAmount}
+          flickerAmount={faultyTerminalProps.flickerAmount}
+          noiseAmp={faultyTerminalProps.noiseAmp}
+          chromaticAberration={0}
+          dither={false}
+          curvature={faultyTerminalProps.curvature}
+          tint={faultyTerminalProps.tint}
+          brightness={faultyTerminalProps.brightness}
+          mouseReact={!prefersReduced}
+          mouseStrength={0.18}
+          pageLoadAnimation={!prefersReduced}
+          dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
         />
-        <div className="pointer-events-none absolute inset-0 bg-background/10 dark:bg-background/15" />
+        <div className="pointer-events-none absolute inset-0 bg-background/8 dark:bg-background/12" />
       </div>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,--alpha(var(--color-primary)/7%),transparent)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:64px_64px] opacity-25 [mask-image:radial-gradient(ellipse_60%_60%_at_50%_20%,black,transparent)]"
-      />
 
       <div className="relative mx-auto w-full max-w-6xl px-4 py-24 sm:px-6">
         <div className="flex max-w-3xl origin-center flex-col gap-6 md:scale-[1.4] md:origin-left">

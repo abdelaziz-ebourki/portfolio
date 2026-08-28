@@ -49,5 +49,8 @@
       ]
     },
     { "file": "src/components/ui/sheet.tsx", "exports": ["SheetFooter", "SheetDescription"] }
-  ]
+  ],
+  "health": {
+    "ignore": ["src/components/FaultyTerminal.jsx"]
+  }
 }
