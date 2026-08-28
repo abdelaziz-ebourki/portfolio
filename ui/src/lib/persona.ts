@@ -107,68 +107,6 @@ export const skillGroups: SkillGroup[] = [
   },
 ]
 
-export type ExperienceItem = {
-  role: Localized
-  company: string
-  period: string
-  summary: Localized
-  highlights: Array<Localized>
-  stack: string[]
-}
-
-export const experience: ExperienceItem[] = [
-  {
-    role: {
-      en: "Software Engineering Intern",
-      fr: "Stagiaire ingénierie logicielle",
-    },
-    company: "Nexvia Solutions · Lyon",
-    period: "2026",
-    summary: {
-      en: "Six-month end-of-degree internship on the internal logistics platform.",
-      fr: "Stage de fin de licence de six mois sur la plateforme logistique interne.",
-    },
-    highlights: [
-      {
-        en: "Built 12 REST endpoints in Spring Boot for the order-tracking module.",
-        fr: "Développé 12 points d'API REST en Spring Boot pour le module de suivi des commandes.",
-      },
-      {
-        en: "Raised backend test coverage from 34% to 78% with JUnit and Testcontainers.",
-        fr: "Porté la couverture de tests back-end de 34 % à 78 % avec JUnit et Testcontainers.",
-      },
-      {
-        en: "Shipped a React admin view used daily by the operations team.",
-        fr: "Livré une interface d'administration React utilisée quotidiennement par l'équipe opérations.",
-      },
-    ],
-    stack: ["Java 21", "Spring Boot", "React", "PostgreSQL"],
-  },
-  {
-    role: {
-      en: "Teaching Assistant — Algorithms",
-      fr: "Assistant pédagogique — Algorithmique",
-    },
-    company: "Université Claude Bernard Lyon 1",
-    period: "2024 – 2026",
-    summary: {
-      en: "Tutored first-year students in algorithms and Java labs.",
-      fr: "Accompagnement d'étudiants de première année en algorithmique et TP Java.",
-    },
-    highlights: [
-      {
-        en: "Led weekly lab sessions for groups of 25+ students.",
-        fr: "Animé des séances de TP hebdomadaires pour des groupes de plus de 25 étudiants.",
-      },
-      {
-        en: "Authored graded exercises now reused in the standard curriculum.",
-        fr: "Rédigé des exercices notés désormais réutilisés dans le cursus standard.",
-      },
-    ],
-    stack: ["Java", "Algorithmes", "Pédagogie"],
-  },
-]
-
 export type EducationItem = {
   degree: Localized
   school: string

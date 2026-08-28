@@ -21,7 +21,6 @@ const navKeys: NavKey[] = [
   "about",
   "skills",
   "projects",
-  "experience",
   "education",
   "terminal",
   "contact",

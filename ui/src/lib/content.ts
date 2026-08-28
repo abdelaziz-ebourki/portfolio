@@ -5,7 +5,6 @@ export const ui = {
     about: { en: "About", fr: "À propos" },
     skills: { en: "Skills", fr: "Compétences" },
     projects: { en: "Projects", fr: "Projets" },
-    experience: { en: "Experience", fr: "Expérience" },
     education: { en: "Education", fr: "Formation" },
     terminal: { en: "Terminal", fr: "Terminal" },
     contact: { en: "Contact", fr: "Contact" },
@@ -88,14 +87,6 @@ export const ui = {
     },
   } satisfies Record<string, Localized>,
 
-  experience: {
-    title: { en: "Experience", fr: "Expérience" },
-    subtitle: {
-      en: "Where I've learned by doing",
-      fr: "Où j'ai appris en faisant",
-    },
-  } satisfies Record<string, Localized>,
-
   education: {
     title: { en: "Education", fr: "Formation" },
     subtitle: {
@@ -127,8 +118,8 @@ export const ui = {
       fr: "commande introuvable :",
     },
     help: {
-      en: "Available commands:\n  about        who I am, in a few lines\n  skills       my daily stack\n  projects     things I shipped\n  experience   where I worked\n  education    my academic path\n  contact      how to reach me\n  whoami ls clear sudo hire-me",
-      fr: "Commandes disponibles :\n  about        qui je suis, en quelques lignes\n  skills       ma stack du quotidien\n  projects     ce que j'ai livré\n  experience   où j'ai travaillé\n  education    mon parcours\n  contact      comment me joindre\n  whoami ls clear sudo hire-me",
+      en: "Available commands:\n  about        who I am, in a few lines\n  skills       my daily stack\n  projects     things I shipped\n  education    my academic path\n  contact      how to reach me\n  whoami ls clear",
+      fr: "Commandes disponibles :\n  about        qui je suis, en quelques lignes\n  skills       ma stack du quotidien\n  projects     ce que j'ai livré\n  education    mon parcours\n  contact      comment me joindre\n  whoami ls clear",
     },
     about: {
       en: "Computer Science graduate from Lyon.\nFull-stack: Java & Spring Boot behind, React & TypeScript in front.\nPursuing a Master's in Software Engineering.",
@@ -142,21 +133,13 @@ export const ui = {
       en: "portfolio-sync   self-updating portfolio (webhooks + Spring Boot + React)\ncampusflow       campus room booking platform\nlibritrack       library management system\nmeteolens        weather dashboard\ntry 'ls' — or scroll up, they are all on this page.",
       fr: "portfolio-sync   portfolio auto-synchronisé (webhooks + Spring Boot + React)\ncampusflow       réservation de salles pour le campus\nlibritrack       gestion de bibliothèque\nmeteolens        tableau de bord météo\nessayez 'ls' — ou remontez, tout est sur cette page.",
     },
-    experience: {
-      en: "2026        Software Engineering Intern — Nexvia Solutions\n2024-2026   Teaching Assistant (Algorithms) — UCBL",
-      fr: "2026          Stagiaire ingénierie logicielle — Nexvia Solutions\n2024-2026     Assistant pédagogique (algorithmique) — UCBL",
-    },
     education: {
       en: "2026-2028   Master Génie Logiciel — UCBL (in progress)\n2023-2026   Licence Informatique — UCBL (honours)",
       fr: "2026-2028     Master Génie Logiciel — UCBL (en cours)\n2023-2026     Licence Informatique — UCBL (mention Bien)",
     },
     ls: {
-      en: "about/  skills/  projects/  experience/  education/  contact/",
-      fr: "about/  skills/  projects/  experience/  education/  contact/",
-    },
-    sudoGranted: {
-      en: "[sudo] permission granted — opening mailbox:",
-      fr: "[sudo] permission accordée — ouverture de la boîte mail :",
+      en: "about/  skills/  projects/  education/  contact/",
+      fr: "about/  skills/  projects/  education/  contact/",
     },
     rmDenied: {
       en: "rm: permission denied — this portfolio is read-only :)",
@@ -178,12 +161,10 @@ export const ui = {
         about: { en: "who I am", fr: "qui je suis" },
         skills: { en: "daily stack", fr: "stack du jour" },
         projects: { en: "things I shipped", fr: "ce que j'ai livré" },
-        experience: { en: "where I worked", fr: "où j'ai travaillé" },
         education: { en: "academic path", fr: "parcours" },
         contact: { en: "reach me", fr: "me joindre" },
         ls: { en: "list sections", fr: "lister sections" },
         clear: { en: "clear screen", fr: "effacer écran" },
-        sudo: { en: "hire me", fr: "me recruter" },
       } satisfies Record<string, Localized>,
     },
   } satisfies Record<string, unknown>,
@@ -191,8 +172,8 @@ export const ui = {
   contact: {
     title: { en: "Let's talk", fr: "Discutons" },
     subtitle: {
-      en: "An internship, a project, or just coffee — my inbox is open.",
-      fr: "Alternance, projet ou simple café — ma boîte mail est ouverte.",
+      en: "Have a project in mind? Let's build it.",
+      fr: "Une idée en tête ? Construisons-la.",
     },
     nameLabel: { en: "Name", fr: "Nom" },
     namePlaceholder: { en: "Jane Doe", fr: "Jeanne Dupont" },

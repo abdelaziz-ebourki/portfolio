@@ -59,7 +59,7 @@ export function TerminalSection() {
     setHistory((prev) => [...prev, input])
     setHistoryIndex(null)
 
-    const [command, ...args] = input.toLowerCase().split(/\s+/)
+    const [command] = input.toLowerCase().split(/\s+/)
 
     switch (command) {
       case "help":
@@ -77,9 +77,6 @@ export function TerminalSection() {
       case "projects":
         respond(t(ui.terminal.projects).split("\n"))
         break
-      case "experience":
-        respond(t(ui.terminal.experience).split("\n"))
-        break
       case "education":
         respond(t(ui.terminal.education).split("\n"))
         break
@@ -91,13 +88,6 @@ export function TerminalSection() {
         break
       case "clear":
         setLines([])
-        break
-      case "sudo":
-        if (args[0] === "hire-me") {
-          respond([t(ui.terminal.sudoGranted), persona.email], "success")
-        } else {
-          respond(["usage: sudo hire-me"], "error")
-        }
         break
       case "rm":
         respond([t(ui.terminal.rmDenied)], "error")
