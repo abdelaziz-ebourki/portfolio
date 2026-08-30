@@ -63,12 +63,6 @@ export function About() {
 							<span className="text-muted-foreground">],</span>
 							{"\n"}
 							<span className="text-muted-foreground">{"}"}</span>
-							<span
-								aria-hidden
-								className="ml-1 inline-block animate-blink text-primary"
-							>
-								█
-							</span>
 						</code>
 					</pre>
 				</TerminalWindow>
