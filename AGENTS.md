@@ -30,6 +30,7 @@ Portfolio – full-stack showcase of GitHub projects via `.portfolio.json` webho
 - Batch parallel tool calls where safe; chain sequentially with `&&` when dependent.
 - For one-off computation use `bash` with `python3 -c`; use `/tmp/opencode` for temp.
 - Don't `cd <dir> && cmd`; use `workdir` param.
+- Always use the question tool to ask questions, gather preferences, or clarify ambiguous instructions before assuming.
 
 ### Git
 - Only commit/push/PR when explicitly requested. Inspect `git status/diff/log` before committing, never commit secrets.
