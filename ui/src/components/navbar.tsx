@@ -43,7 +43,7 @@ export function Navbar() {
             <a
               key={key}
               href={`#${key}`}
-              className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-none px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               {t(ui.nav[key])}
             </a>
@@ -71,7 +71,7 @@ export function Navbar() {
                   <SheetClose key={key} asChild>
                     <a
                       href={`#${key}`}
-                      className="rounded-md px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      className="rounded-none px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     >
                       {t(ui.nav[key])}
                     </a>

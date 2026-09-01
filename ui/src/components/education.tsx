@@ -23,7 +23,7 @@ export function Education() {
           <Card key={item.period} className="bg-card/60">
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
-                <div className="flex size-11 items-center justify-center rounded-lg border border-border bg-muted/50">
+                <div className="flex size-11 items-center justify-center rounded-none border border-border bg-muted/50">
                   <GraduationCap className="size-5 text-primary" />
                 </div>
                 <div className="flex flex-col items-end gap-1.5">

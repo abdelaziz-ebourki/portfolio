@@ -30,7 +30,7 @@ export function Skills() {
             >
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-lg border border-border bg-muted/50 transition-colors group-hover:text-primary">
+                  <div className="flex size-9 items-center justify-center rounded-none border border-border bg-muted/50 transition-colors group-hover:text-primary">
                     <Icon className="size-4.5" />
                   </div>
                   <CardTitle className="text-base">{t(group.label)}</CardTitle>

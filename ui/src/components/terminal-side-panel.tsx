@@ -21,7 +21,7 @@ export function TerminalSidePanel({ onRun }: { onRun: (cmd: string) => void }) {
 								key={cmd}
 								type="button"
 								onClick={() => onRun(cmd)}
-								className="group flex items-center justify-between rounded px-2 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+								className="group flex items-center justify-between rounded-none px-2 py-1.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 							>
 								<span className="text-primary group-hover:text-primary">
 									{cmd}
