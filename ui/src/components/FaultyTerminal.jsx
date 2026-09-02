@@ -30,6 +30,7 @@ uniform float uChromaticAberration;
 uniform float uDither;
 uniform float uCurvature;
 uniform vec3  uTint;
+uniform vec3  uBg;
 uniform vec2  uMouse;
 uniform float uMouseStrength;
 uniform float uUseMouse;
@@ -195,15 +196,16 @@ void main() {
       col.b = getColor(p - ca).b;
     }
 
-    col *= uTint;
-    col *= uBrightness;
+    float intensity = clamp(col.r, 0.0, 1.0);
+    vec3 tinted = uTint * uBrightness;
+    vec3 finalCol = mix(uBg, tinted, intensity);
 
     if(uDither > 0.0){
       float rnd = hash21(gl_FragCoord.xy);
-      col += (rnd - 0.5) * (uDither * 0.003922);
+      finalCol += (rnd - 0.5) * (uDither * 0.003922);
     }
 
-    gl_FragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(finalCol, 1.0);
 }
 `;
 
@@ -232,6 +234,7 @@ export default function FaultyTerminal({
   dither = 0,
   curvature = 0.2,
   tint = '#ffffff',
+  bg = '#000000',
   mouseReact = true,
   mouseStrength = 0.2,
   dpr = Math.min(window.devicePixelRatio || 1, 2),
@@ -252,6 +255,7 @@ export default function FaultyTerminal({
   const timeOffsetRef = useRef(Math.random() * 100);
 
   const tintVec = useMemo(() => hexToRgb(tint), [tint]);
+  const bgVec = useMemo(() => hexToRgb(bg), [bg]);
 
   const ditherValue = useMemo(() => (typeof dither === 'boolean' ? (dither ? 1 : 0) : dither), [dither]);
 
@@ -271,7 +275,7 @@ export default function FaultyTerminal({
     const renderer = new Renderer({ dpr });
     rendererRef.current = renderer;
     const gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 1);
+    gl.clearColor(bgVec[0], bgVec[1], bgVec[2], 1);
 
     const geometry = new Triangle(gl);
 
@@ -295,6 +299,7 @@ export default function FaultyTerminal({
         uDither: { value: ditherValue },
         uCurvature: { value: curvature },
         uTint: { value: new Color(tintVec[0], tintVec[1], tintVec[2]) },
+        uBg: { value: new Color(bgVec[0], bgVec[1], bgVec[2]) },
         uMouse: {
           value: new Float32Array([smoothMouseRef.current.x, smoothMouseRef.current.y])
         },
@@ -388,6 +393,7 @@ export default function FaultyTerminal({
     ditherValue,
     curvature,
     tintVec,
+    bgVec,
     mouseReact,
     mouseStrength,
     pageLoadAnimation,

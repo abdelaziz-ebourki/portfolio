@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
+import { useTheme } from "@/lib/theme"
 import { Button } from "@/components/ui/button"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error — FaultyTerminal is JS (react-bits) with no types
@@ -12,22 +13,7 @@ import TextType from "@/components/TextType"
 import { ArrowDown } from "lucide-react"
 import { SocialLinks } from "@/components/social-links"
 
-function useIsLight(): boolean {
-  const [isLight, setIsLight] = useState(() =>
-    typeof document !== "undefined"
-      ? document.documentElement.classList.contains("light")
-      : false
-  )
-  useEffect(() => {
-    const el = document.documentElement
-    const update = () => setIsLight(el.classList.contains("light"))
-    update()
-    const mo = new MutationObserver(update)
-    mo.observe(el, { attributes: true, attributeFilter: ["class"] })
-    return () => mo.disconnect()
-  }, [])
-  return isLight
-}
+
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(() =>
@@ -79,7 +65,8 @@ function useIsVisible<T extends HTMLElement>(ref: React.RefObject<T | null>): bo
 // fallow-ignore-next-line complexity -- hero composes 6 theme hooks + FaultyTerminal, intentional orchestration
 export function Hero() {
   const { t } = useI18n()
-  const isLight = useIsLight()
+  const { theme } = useTheme()
+  const isLight = theme === "light"
   const prefersReduced = usePrefersReducedMotion()
   const isMobile = useIsMobile()
   const heroRef = useRef<HTMLElement>(null)
@@ -88,17 +75,19 @@ export function Hero() {
 
   const faultyTerminalProps = isLight
     ? {
-        tint: "#4a7a2a",
-        brightness: 0.4,
-        curvature: 0.08,
-        scanlineIntensity: 0.22,
-        glitchAmount: 0.6,
-        flickerAmount: 0.32,
-        noiseAmp: 0.5,
+        bg: "#f5f6f2",
+        tint: "#1e5e0f",
+        brightness: 0.3,
+        curvature: 0.06,
+        scanlineIntensity: 0.18,
+        glitchAmount: 0.45,
+        flickerAmount: 0.28,
+        noiseAmp: 0.35,
       }
     : {
+        bg: "#060805",
         tint: "#7ac23a",
-        brightness: 0.5,
+        brightness: 0.3,
         curvature: 0.1,
         scanlineIntensity: 0.32,
         glitchAmount: 0.85,
@@ -129,6 +118,7 @@ export function Hero() {
           dither={false}
           curvature={faultyTerminalProps.curvature}
           tint={faultyTerminalProps.tint}
+          bg={faultyTerminalProps.bg}
           brightness={faultyTerminalProps.brightness}
           mouseReact={!isPaused && !isMobile}
           mouseStrength={0.14}
@@ -192,12 +182,12 @@ export function Hero() {
             )}
           </h1>
 
-          <p className="max-w-xl text-lg text-muted-foreground text-pretty">
+          <p className="max-w-xl text-lg text-muted-foreground text-pretty leading-8">
             {prefersReduced ? (
               <>
                 <span className="font-medium text-foreground">{t(persona.role)}</span>
                 {" — "}
-                {t(persona.tagline)}
+                <span className="text-foreground/85">{t(persona.tagline)}</span>
               </>
             ) : (
               <>
@@ -214,7 +204,7 @@ export function Hero() {
                   cursorClassName="text-primary"
                   cursorBlinkDuration={0.55}
                 />
-                <span className="ml-1 inline">{" — "}{t(persona.tagline)}</span>
+                <span className="ml-1 inline text-foreground/85">{" — "}{t(persona.tagline)}</span>
               </>
             )}
           </p>
