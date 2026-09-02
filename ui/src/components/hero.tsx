@@ -141,7 +141,7 @@ export function Hero() {
               : 1
           }
         />
-        <div className="pointer-events-none absolute inset-0 bg-background/8 dark:bg-background/12" />
+        <div className="pointer-events-none absolute inset-0 bg-[var(--hero-veil)]" />
       </div>
 
       <div className="relative mx-auto w-full max-w-6xl px-4 py-24 sm:px-6">

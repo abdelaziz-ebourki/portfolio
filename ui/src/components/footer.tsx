@@ -32,10 +32,10 @@ export function Footer() {
 					asChild
 					variant="ghost"
 					size="sm"
-					className="gap-1.5 text-muted-foreground"
+					className="text-muted-foreground"
 				>
 					<a href="#top">
-						<ArrowUp className="size-4" />
+						<ArrowUp data-icon="inline-start" />
 						{t(ui.footer.backToTop)}
 					</a>
 				</Button>

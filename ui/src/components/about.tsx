@@ -25,35 +25,35 @@ export function About() {
 				<TerminalWindow title="~/values.ts" className="h-fit overflow-hidden">
 					<pre className="overflow-x-hidden font-mono text-[13px] leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere] min-w-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 						<code>
-							<span className="text-fuchsia-600 dark:text-fuchsia-400">
+							<span className="text-[var(--syntax-keyword)]">
 								const
 							</span>{" "}
-							<span className="text-sky-700 dark:text-sky-300">alex</span>{" "}
+							<span className="text-[var(--syntax-variable)]">alex</span>{" "}
 							<span className="text-muted-foreground">=</span>{" "}
 							<span className="text-muted-foreground">{"{"}</span>
 							{"\n  "}
-							<span className="text-sky-700 dark:text-sky-300">values</span>
+							<span className="text-[var(--syntax-variable)]">values</span>
 							<span className="text-muted-foreground">: [</span>
 							{ui.about.values.map((value) => (
 								<span key={value.id}>
 									{"\n    "}
 									<span className="text-muted-foreground">{"{ "}</span>
-									<span className="text-sky-700 dark:text-sky-300">id</span>
+									<span className="text-[var(--syntax-variable)]">id</span>
 									<span className="text-muted-foreground">: </span>
-									<span className="text-emerald-700 dark:text-emerald-400">
+									<span className="text-[var(--syntax-string)]">
 										"{value.id}"
 									</span>
 									<span className="text-muted-foreground">, </span>
-									<span className="text-sky-700 dark:text-sky-300">label</span>
+									<span className="text-[var(--syntax-variable)]">label</span>
 									<span className="text-muted-foreground">: </span>
-									<span className="text-emerald-700 dark:text-emerald-400">
+									<span className="text-[var(--syntax-string)]">
 										"{t(value.label)}"
 									</span>
 									<span className="text-muted-foreground">,</span>
 									{"\n      "}
-									<span className="text-sky-700 dark:text-sky-300">detail</span>
+									<span className="text-[var(--syntax-variable)]">detail</span>
 									<span className="text-muted-foreground">: </span>
-									<span className="text-emerald-700 dark:text-emerald-400">
+									<span className="text-[var(--syntax-string)]">
 										"{t(value.detail)}"
 									</span>
 									<span className="text-muted-foreground">{" },"}</span>

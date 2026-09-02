@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from "react"
 import type { ReactNode } from "react"
+import { cn } from "@/lib/utils"
 import "./logo-loop.css"
 
 const ANIMATION_CONFIG = { SMOOTH_TAU: 0.25, MIN_COPIES: 2, COPY_HEADROOM: 2 }
@@ -227,15 +228,7 @@ export const LogoLoop = memo(function LogoLoop({
   )
 
   const rootClassName = useMemo(
-    () =>
-      [
-        "logoloop",
-        fadeOut && "logoloop--fade",
-        scaleOnHover && "logoloop--scale-hover",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" "),
+    () => cn("logoloop", fadeOut && "logoloop--fade", scaleOnHover && "logoloop--scale-hover", className),
     [fadeOut, scaleOnHover, className]
   )
 

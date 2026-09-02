@@ -99,6 +99,18 @@
     --sidebar-accent-foreground: oklch(0.88 0.06 130);
     --sidebar-border: oklch(0.85 0.24 130 / 18%);
     --sidebar-ring: oklch(0.85 0.24 130 / 50%);
+    --syntax-keyword: #e879f9;
+    --syntax-variable: #7dd3fc;
+    --syntax-string: #34d399;
+    --hero-veil: oklch(0.13 0.01 140 / 12%);
+    --grad-portfolio-from: #34d39926;
+    --grad-portfolio-via: #2dd4bf0d;
+    --grad-campus-from: #38bdf826;
+    --grad-campus-via: #818cf80d;
+    --grad-libri-from: #fbbf2426;
+    --grad-libri-via: #fb923c0d;
+    --grad-meteo-from: #a78bfa26;
+    --grad-meteo-via: #e879f90d;
 }
 
 /*
@@ -137,6 +149,18 @@
     --sidebar-accent-foreground: oklch(0.35 0.05 145);
     --sidebar-border: oklch(0.26 0.04 145 / 22%);
     --sidebar-ring: oklch(0.52 0.17 142 / 45%);
+    --syntax-keyword: #c026d3;
+    --syntax-variable: #0369a1;
+    --syntax-string: #047857;
+    --hero-veil: oklch(0.972 0.006 120 / 8%);
+    --grad-portfolio-from: #10b98133;
+    --grad-portfolio-via: #14b8a61a;
+    --grad-campus-from: #0ea5e933;
+    --grad-campus-via: #6366f11a;
+    --grad-libri-from: #f59e0b33;
+    --grad-libri-via: #f973161a;
+    --grad-meteo-from: #8b5cf633;
+    --grad-meteo-via: #d946ef1a;
 }
 
 @layer base {

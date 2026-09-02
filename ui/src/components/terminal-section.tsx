@@ -7,6 +7,7 @@ import { TAB_COMMANDS } from "@/lib/terminal-commands"
 import { SectionHeading } from "@/components/section-heading"
 import { TerminalSidePanel } from "@/components/terminal-side-panel"
 import { TerminalWindow } from "@/components/terminal-window"
+import { cn } from "@/lib/utils"
 
 type LineKind = "input" | "output" | "error" | "success"
 
@@ -183,7 +184,7 @@ export function TerminalSection() {
             aria-label={t(ui.terminal.ariaLabel)}
           >
             {lines.map((line) => (
-              <p key={line.id} className={`${lineStyles[line.kind]} min-w-0 overflow-x-hidden`}>
+              <p key={line.id} className={cn(lineStyles[line.kind], "min-w-0 overflow-x-hidden")}>
                 {line.kind === "input" && (
                   <span className="mr-2 select-none text-primary" aria-hidden>
                     $

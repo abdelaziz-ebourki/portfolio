@@ -4,8 +4,8 @@ import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
 import { SectionHeading } from "@/components/section-heading"
 import { Button } from "@/components/ui/button"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Card,
@@ -41,43 +41,47 @@ export function Contact() {
             <CardDescription>{t(ui.contact.subtitle)}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="grid gap-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">{t(ui.contact.nameLabel)}</Label>
-                  <Input id="name" name="name" required placeholder={t(ui.contact.namePlaceholder)} />
+            <form onSubmit={handleSubmit}>
+              <FieldGroup className="gap-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field>
+                    <FieldLabel htmlFor="name">{t(ui.contact.nameLabel)}</FieldLabel>
+                    <Input id="name" name="name" required placeholder={t(ui.contact.namePlaceholder)} aria-invalid={false} />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="email">{t(ui.contact.emailLabel)}</FieldLabel>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      placeholder={t(ui.contact.emailPlaceholder)}
+                      aria-invalid={false}
+                    />
+                  </Field>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">{t(ui.contact.emailLabel)}</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
+                <Field>
+                  <FieldLabel htmlFor="message">{t(ui.contact.messageLabel)}</FieldLabel>
+                  <Textarea
+                    id="message"
+                    name="message"
                     required
-                    placeholder={t(ui.contact.emailPlaceholder)}
+                    rows={5}
+                    placeholder={t(ui.contact.messagePlaceholder)}
+                    className="resize-none"
+                    aria-invalid={false}
                   />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="message">{t(ui.contact.messageLabel)}</Label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  required
-                  rows={5}
-                  placeholder={t(ui.contact.messagePlaceholder)}
-                  className="resize-none"
-                />
-              </div>
-              <Button type="submit" disabled={state === "sending"} className="w-fit gap-2">
-                <Send className="size-4" />
-                {state === "idle" && t(ui.contact.send)}
-                {state === "sending" && t(ui.contact.sending)}
-                {state === "sent" && t(ui.contact.sent)}
-              </Button>
-              {state === "sent" && (
-                <p className="text-sm text-muted-foreground">{t(ui.contact.sentHint)}</p>
-              )}
+                </Field>
+                <Button type="submit" disabled={state === "sending"} className="w-fit">
+                  <Send data-icon="inline-start" />
+                  {state === "idle" && t(ui.contact.send)}
+                  {state === "sending" && t(ui.contact.sending)}
+                  {state === "sent" && t(ui.contact.sent)}
+                </Button>
+                {state === "sent" && (
+                  <p className="text-sm text-muted-foreground">{t(ui.contact.sentHint)}</p>
+                )}
+              </FieldGroup>
             </form>
           </CardContent>
         </Card>

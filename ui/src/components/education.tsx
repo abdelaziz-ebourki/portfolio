@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { GraduationCap } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export function Education() {
   const { t } = useI18n()
@@ -29,9 +31,7 @@ export function Education() {
                 <div className="flex flex-col items-end gap-1.5">
                   <Badge
                     variant={item.status === "ongoing" ? "default" : "secondary"}
-                    className={
-                      item.status === "ongoing" ? "gap-1.5 rounded-full" : "rounded-full"
-                    }
+                    className={cn(item.status === "ongoing" && "gap-1.5", "rounded-full")}
                   >
                     {item.status === "ongoing" && (
                       <span className="relative flex size-1.5">
@@ -47,7 +47,7 @@ export function Education() {
                 </div>
               </div>
               <CardTitle className="pt-3 text-lg leading-snug">{t(item.degree)}</CardTitle>
-              <p className="text-sm text-muted-foreground">{item.school}</p>
+              <CardDescription>{item.school}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed text-muted-foreground">

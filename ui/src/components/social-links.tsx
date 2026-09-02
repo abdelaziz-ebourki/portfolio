@@ -21,7 +21,7 @@ export function SocialLinks({ className, iconClassName }: Props) {
       {LINKS.map(({ href, label, icon: Icon }) => (
         <Button key={label} variant="ghost" size="icon" asChild>
           <a href={href} target="_blank" rel="noreferrer" aria-label={label}>
-            <Icon className={cn("size-4", iconClassName)} />
+            <Icon className={iconClassName} />
           </a>
         </Button>
       ))}

@@ -33,7 +33,7 @@ export const projects: Project[] = [
     title: "Portfolio Sync",
     icon: "webhook",
     gradient:
-      "from-emerald-500/20 via-teal-500/10 to-transparent dark:from-emerald-400/15 dark:via-teal-400/5",
+      "from-[var(--grad-portfolio-from)] via-[var(--grad-portfolio-via)] to-transparent",
     description: {
       en: "Self-updating portfolio. GitHub webhooks trigger a Spring Boot API that syncs project manifests into PostgreSQL, rendered by a React UI.",
       fr: "Portfolio auto-synchronisé. Des webhooks GitHub déclenchent une API Spring Boot qui synchronise les projets dans PostgreSQL, affichés par une interface React.",
@@ -46,7 +46,7 @@ export const projects: Project[] = [
     title: "CampusFlow",
     icon: "calendar",
     gradient:
-      "from-sky-500/20 via-indigo-500/10 to-transparent dark:from-sky-400/15 dark:via-indigo-400/5",
+      "from-[var(--grad-campus-from)] via-[var(--grad-campus-via)] to-transparent",
     description: {
       en: "Room and equipment booking platform for a university campus, with conflict detection and role-based access.",
       fr: "Plateforme de réservation de salles et de matériel pour un campus universitaire, avec détection de conflits et gestion des rôles.",
@@ -60,7 +60,7 @@ export const projects: Project[] = [
     title: "LibriTrack",
     icon: "book",
     gradient:
-      "from-amber-500/20 via-orange-500/10 to-transparent dark:from-amber-400/15 dark:via-orange-400/5",
+      "from-[var(--grad-libri-from)] via-[var(--grad-libri-via)] to-transparent",
     description: {
       en: "Library management system: catalog, loans, late-return notifications and an admin dashboard with usage statistics.",
       fr: "Système de gestion de bibliothèque : catalogue, prêts, relances automatiques et tableau de bord administrateur avec statistiques.",
@@ -72,7 +72,7 @@ export const projects: Project[] = [
     title: "MeteoLens",
     icon: "cloud",
     gradient:
-      "from-violet-500/20 via-fuchsia-500/10 to-transparent dark:from-violet-400/15 dark:via-fuchsia-400/5",
+      "from-[var(--grad-meteo-from)] via-[var(--grad-meteo-via)] to-transparent",
     description: {
       en: "Weather dashboard consuming Open-Meteo, with saved locations, hourly forecasts and offline caching.",
       fr: "Tableau de bord météo utilisant Open-Meteo, avec lieux favoris, prévisions horaires et cache hors ligne.",
