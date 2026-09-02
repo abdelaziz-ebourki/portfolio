@@ -12,7 +12,7 @@ import FaultyTerminal from "@/components/FaultyTerminal";
 import TextType from "@/components/TextType";
 import { ArrowDown } from "lucide-react";
 import { SocialLinks } from "@/components/social-links";
-import { LogoLoop } from "./logo-loop";
+import { LogoLoop } from "@/components/logo-loop";
 import { techLogos } from "@/lib/tech-logos";
 
 function usePrefersReducedMotion(): boolean {
@@ -141,7 +141,7 @@ export function Hero() {
 				<div className="pointer-events-none absolute inset-0 bg-[var(--hero-veil)]" />
 			</div>
 
-			<div className="relative mx-auto w-full max-w-6xl px-4 py-24 sm:px-6">
+			<div className="relative mx-auto flex w-full max-w-6xl flex-1 items-center px-4 py-24 sm:px-6">
 				<div className="flex max-w-3xl origin-center flex-col gap-6 md:scale-[1.4] md:origin-left">
 					<div className="font-mono text-sm text-primary/80">
 						<span className="text-muted-foreground">alex@dev:~$</span>{" "}
@@ -241,22 +241,23 @@ export function Hero() {
 
 			<a
 				href="#about"
-				className="group absolute bottom-20 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-primary sm:flex"
+				className="group absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-primary sm:flex"
 			>
 				{t(ui.hero.scroll)}
 				<ArrowDown className="size-4 animate-bounce" />
 			</a>
-			<div className="border-y border-border/60 bg-card/30 py-6 mt-auto">
+			<div className="relative z-10 mt-auto w-full border-t border-border/60 bg-background/85 py-6 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
 				<LogoLoop
 					logos={techLogos}
-					speed={80}
+					speed={prefersReduced || !isVisible ? 0 : 80}
 					gap={64}
 					logoHeight={28}
 					pauseOnHover
 					scaleOnHover
 					fadeOut
+					fadeOutColor={faultyTerminalProps.bg}
 					ariaLabel="Technologies I work with"
-					className="text-foreground/55"
+					className="text-foreground/70"
 				/>
 			</div>
 		</section>
