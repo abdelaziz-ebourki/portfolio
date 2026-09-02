@@ -246,7 +246,7 @@ export function Hero() {
 				{t(ui.hero.scroll)}
 				<ArrowDown className="size-4 animate-bounce" />
 			</a>
-			<div className="relative z-10 mt-auto w-full border-t border-border/60 bg-background/85 py-6 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+			<div className="relative z-10 mt-auto w-full border-t border-border/60 bg-background py-6">
 				<LogoLoop
 					logos={techLogos}
 					speed={prefersReduced || !isVisible ? 0 : 80}
