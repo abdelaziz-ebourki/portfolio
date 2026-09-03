@@ -13,7 +13,6 @@ export const ui = {
   hero: {
     ctaProjects: { en: "View my work", fr: "Voir mes projets" },
     ctaContact: { en: "Get in touch", fr: "Me contacter" },
-    scroll: { en: "Scroll to explore", fr: "Faites défiler" },
   } satisfies Record<string, Localized>,
 
   about: {
@@ -105,10 +104,6 @@ export const ui = {
       en: "Type 'help' to list available commands.",
       fr: "Tapez 'help' pour lister les commandes disponibles.",
     },
-    inputPlaceholder: {
-      en: "type a command...",
-      fr: "tapez une commande...",
-    },
     ariaLabel: {
       en: "Interactive terminal input",
       fr: "Saisie du terminal interactif",
@@ -150,7 +145,6 @@ export const ui = {
       fr: "cat : rien à grignoter ici — essayez 'about' ou 'projects'.",
     },
     side: {
-      cheatTitle: { en: "cheatsheet", fr: "aide-mémoire" },
       cheatHint: {
         en: "Click to run · Tab complete · ↑↓ history",
         fr: "Cliquer pour exécuter · Tab complète · ↑↓ historique",
@@ -197,15 +191,9 @@ export const ui = {
       fr: "Merci ! Ce formulaire de démo n'envoie rien pour l'instant — écrivez-moi directement.",
     },
     orReach: { en: "Or reach me at", fr: "Ou contactez-moi à" },
-    socials: { en: "Elsewhere", fr: "Ailleurs" },
   } satisfies Record<string, Localized>,
 
   footer: {
-    tagline: {
-      en: "Designed & built with care.",
-      fr: "Conçu et développé avec soin.",
-    },
-    rights: { en: "All rights reserved.", fr: "Tous droits réservés." },
     backToTop: { en: "Back to top", fr: "Retour en haut" },
   } satisfies Record<string, Localized>,
 }
