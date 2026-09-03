@@ -110,7 +110,7 @@ export function Hero() {
 		>
 			<div aria-hidden className="absolute inset-0">
 				<FaultyTerminal
-					key={`${isLight ? "light" : "dark"}-${isPaused ? "paused" : "running"}-${isMobile ? "mobile" : "desktop"}`}
+					key={`${isLight ? "light" : "dark"}-${isMobile ? "mobile" : "desktop"}`}
 					className="absolute inset-0"
 					scale={1.15}
 					gridMul={[2, 1]}
@@ -141,7 +141,7 @@ export function Hero() {
 				<div className="pointer-events-none absolute inset-0 bg-[var(--hero-veil)]" />
 			</div>
 
-			<div className="relative mx-auto flex w-full max-w-6xl flex-1 items-center px-4 py-24 sm:px-6">
+			<div className="pointer-events-none relative mx-auto flex w-full max-w-6xl flex-1 items-center px-4 py-24 sm:px-6">
 				<div className="flex max-w-3xl origin-center flex-col gap-6 md:scale-[1.4] md:origin-left">
 					<div className="font-mono text-sm text-primary/80">
 						<span className="text-muted-foreground">alex@dev:~$</span>{" "}
@@ -224,7 +224,7 @@ export function Hero() {
 						)}
 					</p>
 
-					<div className="flex flex-wrap items-center gap-3 pt-2">
+					<div className="pointer-events-auto flex flex-wrap items-center gap-3 pt-2">
 						<Button asChild size="lg">
 							<a href="#projects">{t(ui.hero.ctaProjects)}</a>
 						</Button>
@@ -241,12 +241,12 @@ export function Hero() {
 
 			<a
 				href="#about"
-				className="group absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-primary sm:flex"
+				className="pointer-events-auto group absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-primary sm:flex"
 			>
 				{t(ui.hero.scroll)}
 				<ArrowDown className="size-4 animate-bounce" />
 			</a>
-			<div className="relative z-10 mt-auto w-full border-t border-border/60 bg-background py-6">
+			<div className="pointer-events-none relative z-10 mt-auto w-full border-t border-border/60 bg-background py-6">
 				<LogoLoop
 					logos={techLogos}
 					speed={prefersReduced || !isVisible ? 0 : 80}
@@ -257,7 +257,7 @@ export function Hero() {
 					fadeOut
 					fadeOutColor={faultyTerminalProps.bg}
 					ariaLabel="Technologies I work with"
-					className="text-foreground/70"
+					className="pointer-events-auto text-foreground/70"
 				/>
 			</div>
 		</section>
