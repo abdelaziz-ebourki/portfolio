@@ -97,7 +97,7 @@ export function Hero() {
 				brightness: 0.4,
 				curvature: 0.1,
 				scanlineIntensity: 0.32,
-				glitchAmount: 0.85,
+				glitchAmount: 0.45,
 				flickerAmount: 0.48,
 				noiseAmp: 0.5,
 			};

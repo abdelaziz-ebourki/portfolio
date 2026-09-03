@@ -31,6 +31,11 @@ const icons = {
   cloud: Cloud,
 } as const
 
+function projectHeaderClass(project: Project): string {
+  if (project.featured) return cn("bg-linear-to-br", project.gradient)
+  return "bg-muted/40"
+}
+
 function ProjectCard({ project }: { project: Project }) {
   const { t } = useI18n()
   const Icon = icons[project.icon]
@@ -39,8 +44,8 @@ function ProjectCard({ project }: { project: Project }) {
     <Card className="group flex h-full flex-col overflow-hidden bg-card/60 transition-all hover:border-foreground/25 hover:shadow-lg">
       <div
         className={cn(
-          "relative flex h-36 items-center justify-center border-b border-border bg-linear-to-br",
-          project.gradient
+          "relative flex h-36 items-center justify-center border-b border-border",
+          projectHeaderClass(project)
         )}
       >
         <Icon className="size-10 text-muted-foreground/70 transition-transform duration-300 group-hover:scale-110" />
