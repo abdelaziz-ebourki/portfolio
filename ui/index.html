@@ -13,10 +13,7 @@
       ;(function () {
         try {
           var theme = localStorage.getItem("portfolio-theme")
-          if (
-            theme === "light" ||
-            (!theme && window.matchMedia("(prefers-color-scheme: light)").matches)
-          ) {
+          if (theme === "light") {
             document.documentElement.classList.remove("dark")
             document.documentElement.classList.add("light")
           }
