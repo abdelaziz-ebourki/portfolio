@@ -11,7 +11,7 @@ export function SectionHeading({
 
   return (
     <div className="mb-10 flex flex-col gap-2">
-      <span className="text-xs font-medium tracking-widest text-primary/80 uppercase">
+      <span className="font-mono text-xs font-medium tracking-widest text-primary/80 uppercase">
         {"$ "}
         {t(eyebrow)}
       </span>

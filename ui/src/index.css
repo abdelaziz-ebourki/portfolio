@@ -1,14 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/red-hat-mono";
 @import "@fontsource-variable/jetbrains-mono";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
     --font-heading: var(--font-mono);
-    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Red Hat Mono Variable', ui-monospace, monospace;
     --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
     --animate-blink: blink 1.1s step-end infinite;
     --color-sidebar-ring: var(--sidebar-ring);
