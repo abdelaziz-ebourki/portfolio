@@ -31,7 +31,7 @@ export function Education() {
                 <div className="flex flex-col items-end gap-1.5">
                   <Badge
                     variant={item.status === "ongoing" ? "default" : "secondary"}
-                    className={cn(item.status === "ongoing" && "gap-1.5", "rounded-full")}
+                    className={cn(item.status === "ongoing" && "gap-1.5")}
                   >
                     {item.status === "ongoing" && (
                       <span className="relative flex size-1.5">
