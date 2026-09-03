@@ -84,7 +84,7 @@ export function Hero() {
 		? {
 				bg: "#f5f6f2",
 				tint: "#1e5e0f",
-				brightness: 0.3,
+				brightness: 1,
 				curvature: 0.06,
 				scanlineIntensity: 0.18,
 				glitchAmount: 0.45,
@@ -94,7 +94,7 @@ export function Hero() {
 		: {
 				bg: "#060805",
 				tint: "#7ac23a",
-				brightness: 0.3,
+				brightness: 0.4,
 				curvature: 0.1,
 				scanlineIntensity: 0.32,
 				glitchAmount: 0.85,
@@ -246,7 +246,7 @@ export function Hero() {
 				{t(ui.hero.scroll)}
 				<ArrowDown className="size-4 animate-bounce" />
 			</a>
-			<div className="pointer-events-none relative z-10 mt-auto w-full border-t border-border/60 bg-background py-6">
+			<div className="pointer-events-none relative z-10 mt-auto w-full border-t border-b border-border/60 bg-background py-6">
 				<LogoLoop
 					logos={techLogos}
 					speed={prefersReduced || !isVisible ? 0 : 80}
