@@ -14,7 +14,7 @@ dist-ssr
 .fallow/
 .agents/
 ui/.agents/
-ui/skills-lock.json
+skills-lock.json
 
 # Editor directories and files
 .vscode/*
