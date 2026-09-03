@@ -11,11 +11,11 @@ export function SectionHeading({
 
   return (
     <div className="mb-10 flex flex-col gap-2">
-      <span className="text-xs font-medium tracking-widest text-primary/80 uppercase crt-glow">
+      <span className="text-xs font-medium tracking-widest text-primary/80 uppercase">
         {"$ "}
         {t(eyebrow)}
       </span>
-      <h2 className="text-3xl font-bold tracking-tight crt-glow sm:text-4xl">
+      <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
         {t(title)}
       </h2>
       <span aria-hidden className="text-sm text-primary/60">

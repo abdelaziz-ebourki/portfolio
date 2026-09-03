@@ -33,7 +33,7 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <a
           href="#top"
-          className="font-mono text-sm font-semibold tracking-tight text-primary crt-glow"
+          className="font-mono text-sm font-semibold tracking-tight text-primary"
         >
           alex@dev:~$
         </a>
@@ -62,7 +62,7 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <SheetHeader>
-                <SheetTitle className="font-mono text-primary crt-glow">
+                <SheetTitle className="font-mono text-primary">
                   alex@dev:~$
                 </SheetTitle>
               </SheetHeader>

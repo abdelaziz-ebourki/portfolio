@@ -8,7 +8,7 @@
 
 @theme inline {
     --font-heading: var(--font-mono);
-    --font-sans: 'JetBrains Mono Variable', ui-monospace, monospace;
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
     --animate-blink: blink 1.1s step-end infinite;
     --color-sidebar-ring: var(--sidebar-ring);
