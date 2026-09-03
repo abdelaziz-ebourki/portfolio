@@ -36,12 +36,19 @@ function projectHeaderClass(project: Project): string {
   return "bg-muted/40"
 }
 
+function projectCardClass(project: Project): string {
+  return cn(
+    "group flex h-full flex-col overflow-hidden bg-card/60 transition-all hover:border-foreground/25 hover:shadow-lg",
+    project.featured && "sm:col-span-2"
+  )
+}
+
 function ProjectCard({ project }: { project: Project }) {
   const { t } = useI18n()
   const Icon = icons[project.icon]
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden bg-card/60 transition-all hover:border-foreground/25 hover:shadow-lg">
+    <Card className={projectCardClass(project)}>
       <div
         className={cn(
           "relative flex h-36 items-center justify-center border-b border-border",
@@ -50,7 +57,7 @@ function ProjectCard({ project }: { project: Project }) {
       >
         <Icon className="size-10 text-muted-foreground/70 transition-transform duration-300 group-hover:scale-110" />
         {project.featured && (
-          <Badge className="absolute left-3 top-3 gap-1 rounded-full">
+          <Badge variant="featured" className="absolute left-3 top-3 gap-1">
             <Star className="size-3" />
             {t(ui.projects.featured)}
           </Badge>

@@ -225,7 +225,7 @@ export function Hero() {
 					</p>
 
 					<div className="pointer-events-auto flex flex-wrap items-center gap-3 pt-2">
-						<Button asChild size="lg">
+						<Button asChild size="lg" variant="accent">
 							<a href="#projects">{t(ui.hero.ctaProjects)}</a>
 						</Button>
 						<Button asChild size="lg" variant="outline">
