@@ -10,7 +10,6 @@ import FaultyTerminal from "@/components/FaultyTerminal";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error — TextType is JS (react-bits) with no types
 import TextType from "@/components/TextType";
-import { ArrowDown } from "lucide-react";
 import { SocialLinks } from "@/components/social-links";
 import { LogoLoop } from "@/components/logo-loop";
 import { techLogos } from "@/lib/tech-logos";
@@ -239,13 +238,6 @@ export function Hero() {
 				</div>
 			</div>
 
-			<a
-				href="#about"
-				className="pointer-events-auto group absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-primary sm:flex"
-			>
-				{t(ui.hero.scroll)}
-				<ArrowDown className="size-4 animate-bounce" />
-			</a>
 			<div className="pointer-events-none relative z-10 mt-auto w-full border-t border-b border-border/60 bg-background py-6">
 				<LogoLoop
 					logos={techLogos}
