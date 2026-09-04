@@ -224,4 +224,18 @@ export const ui = {
   footer: {
     backToTop: { en: "Back to top", fr: "Retour en haut", ar: "العودة إلى الأعلى" },
   } satisfies Record<string, Localized>,
+
+  resume: {
+    menuLabel: { en: "Resume", fr: "CV", ar: "السيرة الذاتية" },
+    ariaLabel: {
+      en: "Download resume",
+      fr: "Télécharger le CV",
+      ar: "تحميل السيرة الذاتية",
+    },
+    fileNames: {
+      en: { en: "English CV", fr: "CV en anglais", ar: "السيرة الذاتية بالإنجليزية" },
+      fr: { en: "French CV", fr: "CV en français", ar: "السيرة الذاتية بالفرنسية" },
+      ar: { en: "Arabic CV", fr: "CV en arabe", ar: "السيرة الذاتية بالعربية" },
+    } satisfies Record<string, Localized>,
+  } satisfies Record<string, unknown>,
 }

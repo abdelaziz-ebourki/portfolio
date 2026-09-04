@@ -3,6 +3,7 @@ import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
+import { ResumeMenu } from "@/components/resume-menu"
 import {
   Sheet,
   SheetClose,
@@ -51,6 +52,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ResumeMenu className="hidden md:inline-flex" />
           <Button asChild size="sm" className="hidden md:inline-flex">
             <a href={`mailto:${persona.email}`}>{t(ui.hero.ctaContact)}</a>
           </Button>
@@ -82,6 +84,7 @@ export function Navbar() {
                     <a href={`mailto:${persona.email}`}>{t(ui.hero.ctaContact)}</a>
                   </Button>
                 </SheetClose>
+                <ResumeMenu className="mt-2 w-full" onPick={() => setOpen(false)} />
               </nav>
             </SheetContent>
           </Sheet>
