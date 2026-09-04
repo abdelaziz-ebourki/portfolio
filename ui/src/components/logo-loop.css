@@ -26,13 +26,13 @@
 
 .logoloop__item {
   flex: 0 0 auto;
-  margin-right: var(--logoloop-gap);
+  margin-inline-end: var(--logoloop-gap);
   font-size: var(--logoloop-logoHeight);
   line-height: 1;
 }
 
 .logoloop__item:last-child {
-  margin-right: var(--logoloop-gap);
+  margin-inline-end: var(--logoloop-gap);
 }
 
 .logoloop__node {
@@ -101,7 +101,7 @@
 }
 
 .logoloop--fade::before {
-  left: 0;
+  inset-inline-start: 0;
   background: linear-gradient(
     to right,
     var(--logoloop-fade-color, var(--background)) 0%,
@@ -110,7 +110,7 @@
 }
 
 .logoloop--fade::after {
-  right: 0;
+  inset-inline-end: 0;
   background: linear-gradient(
     to left,
     var(--logoloop-fade-color, var(--background)) 0%,
