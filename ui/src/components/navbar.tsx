@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
@@ -54,7 +53,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <ResumeMenu className="hidden md:inline-flex" />
           <Button asChild size="sm" className="hidden md:inline-flex">
-            <a href={`mailto:${persona.email}`}>{t(ui.hero.ctaContact)}</a>
+            <a href="#contact">{t(ui.hero.ctaContact)}</a>
           </Button>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -81,7 +80,7 @@ export function Navbar() {
                 ))}
                 <SheetClose asChild>
                   <Button asChild className="mt-3 w-full">
-                    <a href={`mailto:${persona.email}`}>{t(ui.hero.ctaContact)}</a>
+                    <a href="#contact">{t(ui.hero.ctaContact)}</a>
                   </Button>
                 </SheetClose>
                 <ResumeMenu className="mt-2 w-full" onPick={() => setOpen(false)} />
