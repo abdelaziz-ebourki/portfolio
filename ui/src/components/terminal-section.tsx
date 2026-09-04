@@ -110,12 +110,12 @@ export function TerminalSection() {
       case "lang":
       case "language": {
         if (!arg) {
-          respond([`lang: ${lang} (usage: lang [en|fr])`], "success")
-        } else if (arg === "en" || arg === "fr") {
+          respond([`lang: ${lang} (usage: lang [en|fr|ar])`], "success")
+        } else if (arg === "en" || arg === "fr" || arg === "ar") {
           setLang(arg)
           respond([`lang → ${arg}`], "success")
         } else {
-          respond(["usage: lang [en|fr]"], "error")
+          respond(["usage: lang [en|fr|ar]"], "error")
         }
         break
       }
@@ -179,14 +179,14 @@ export function TerminalSection() {
         >
           <div
             ref={scrollRef}
-            className="min-h-[20rem] max-h-80 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="min-h-[20rem] max-h-80 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pe-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             aria-live="polite"
             aria-label={t(ui.terminal.ariaLabel)}
           >
             {lines.map((line) => (
               <p key={line.id} className={cn(lineStyles[line.kind], "min-w-0 overflow-x-hidden")}>
                 {line.kind === "input" && (
-                  <span className="mr-2 select-none text-primary" aria-hidden>
+                  <span className="me-2 select-none text-primary" aria-hidden>
                     $
                   </span>
                 )}
@@ -220,7 +220,7 @@ export function TerminalSection() {
                 </span>
                 <span
                   aria-hidden
-                  className="ml-1 inline-block shrink-0 animate-blink text-primary"
+                  className="ms-1 inline-block shrink-0 animate-blink text-primary"
                 >
                   █
                 </span>

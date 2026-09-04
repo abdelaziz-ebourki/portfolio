@@ -2,12 +2,13 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react"
 
-export type Lang = "en" | "fr"
+export type Lang = "en" | "fr" | "ar"
 export type Localized = Record<Lang, string>
 
 type I18nContextValue = {
@@ -20,11 +21,24 @@ const I18nContext = createContext<I18nContextValue | null>(null)
 
 const STORAGE_KEY = "portfolio-lang"
 
+function getLangDir(lang: Lang): "rtl" | "ltr" {
+  return lang === "ar" ? "rtl" : "ltr"
+}
+
+function applyLangAttributes(lang: Lang) {
+  if (typeof document === "undefined") return
+  document.documentElement.lang = lang
+  document.documentElement.dir = getLangDir(lang)
+}
+
 function readInitialLang(): Lang {
-  if (typeof window === "undefined") return "fr"
+  if (typeof window === "undefined") return "en"
   const stored = window.localStorage.getItem(STORAGE_KEY)
-  if (stored === "en" || stored === "fr") return stored
-  return navigator.language.toLowerCase().startsWith("fr") ? "fr" : "en"
+  if (stored === "en" || stored === "fr" || stored === "ar") return stored
+  const browser = navigator.language.toLowerCase()
+  if (browser.startsWith("ar")) return "ar"
+  if (browser.startsWith("fr")) return "fr"
+  return "en"
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -33,7 +47,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const setLang = useCallback((next: Lang) => {
     setLangState(next)
     window.localStorage.setItem(STORAGE_KEY, next)
-    document.documentElement.lang = next
+    applyLangAttributes(next)
   }, [])
 
   const t = useCallback(
@@ -42,6 +56,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   )
 
   const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t])
+
+  useEffect(() => {
+    applyLangAttributes(lang)
+  }, [lang])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }

@@ -26,7 +26,7 @@ export function TerminalSidePanel({ onRun }: { onRun: (cmd: string) => void }) {
 								<span className="text-primary group-hover:text-primary">
 									{cmd}
 								</span>
-								<span className="ml-3 truncate text-muted-foreground/70">
+								<span className="ms-3 truncate text-muted-foreground/70">
 									{hint ? t(hint) : ""}
 								</span>
 							</button>

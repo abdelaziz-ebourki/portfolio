@@ -3,6 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/red-hat-mono";
 @import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource-variable/noto-sans-arabic";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -59,6 +60,16 @@
     50% {
         opacity: 0;
     }
+}
+
+/*
+ * Arabic — no true monospace exists for the cursive Arabic script,
+ * so Noto Sans Arabic Variable takes precedence under :lang(ar)
+ * with the mono families kept as fallback for Latin/code.
+ */
+:lang(ar) {
+    --font-sans: 'Noto Sans Arabic Variable', 'Red Hat Mono Variable', ui-monospace, monospace;
+    --font-mono: 'Noto Sans Arabic Variable', 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
 /*

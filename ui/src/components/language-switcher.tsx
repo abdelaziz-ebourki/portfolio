@@ -12,6 +12,7 @@ import { Check, Languages } from "lucide-react"
 const options: Array<{ value: Lang; label: string; short: string }> = [
   { value: "fr", label: "Français", short: "FR" },
   { value: "en", label: "English", short: "EN" },
+  { value: "ar", label: "العربية", short: "AR" },
 ]
 
 export function LanguageSwitcher() {

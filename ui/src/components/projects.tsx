@@ -57,7 +57,7 @@ function ProjectCard({ project }: { project: Project }) {
       >
         <Icon className="size-10 text-muted-foreground/70 transition-transform duration-300 group-hover:scale-110" />
         {project.featured && (
-          <Badge variant="featured" className="absolute left-3 top-3 gap-1">
+          <Badge variant="featured" className="absolute start-3 top-3 gap-1">
             <Star className="size-3" />
             {t(ui.projects.featured)}
           </Badge>
