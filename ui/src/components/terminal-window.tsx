@@ -21,7 +21,7 @@ export function TerminalWindow({
         <span className="size-2.5 rounded-full bg-destructive/70" />
         <span className="size-2.5 rounded-full bg-yellow-500/70" />
         <span className="size-2.5 rounded-full bg-emerald-500/70" />
-        <span className="ml-2 font-mono text-xs text-muted-foreground">{title}</span>
+        <span className="ms-2 font-mono text-xs text-muted-foreground">{title}</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col p-4 sm:p-5">{children}</div>
     </div>

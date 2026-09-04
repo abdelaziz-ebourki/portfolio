@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from "react"
 import type { ReactNode } from "react"
+import { cn } from "@/lib/utils"
 import "./logo-loop.css"
 
 const ANIMATION_CONFIG = { SMOOTH_TAU: 0.25, MIN_COPIES: 2, COPY_HEADROOM: 2 }
@@ -22,6 +23,7 @@ export type LogoLoopNodeLogo = {
   title?: string
 }
 
+// fallow-ignore-next-line unused-type -- public API for consumers
 export type LogoLoopLogo = LogoLoopImageLogo | LogoLoopNodeLogo
 
 function toCssLength(value: number | string | undefined): string | undefined {
@@ -214,6 +216,20 @@ export const LogoLoop = memo(function LogoLoop({
 
   useImageLoader(seqRef, updateDimensions, [logos, gap, logoHeight])
 
+  // Re-measure when document direction/language changes (e.g. LTR <-> RTL
+  // switch) or when late-loading fonts (e.g. Noto Sans Arabic) change the
+  // sequence width. ResizeObserver alone doesn't fire for these.
+  useEffect(() => {
+    updateDimensions()
+    const observer = new MutationObserver(updateDimensions)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["dir", "lang"],
+    })
+    document.fonts.ready.then(updateDimensions).catch(() => {})
+    return () => observer.disconnect()
+  }, [updateDimensions])
+
   useAnimationLoop(trackRef, targetVelocity, seqWidth, isHovered, effectiveHoverSpeed)
 
   const cssVariables = useMemo(
@@ -226,15 +242,7 @@ export const LogoLoop = memo(function LogoLoop({
   )
 
   const rootClassName = useMemo(
-    () =>
-      [
-        "logoloop",
-        fadeOut && "logoloop--fade",
-        scaleOnHover && "logoloop--scale-hover",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" "),
+    () => cn("logoloop", fadeOut && "logoloop--fade", scaleOnHover && "logoloop--scale-hover", className),
     [fadeOut, scaleOnHover, className]
   )
 
@@ -335,6 +343,12 @@ export const LogoLoop = memo(function LogoLoop({
       style={containerStyle}
       role="region"
       aria-label={ariaLabel}
+      // Pin marquee geometry to LTR: the rAF loop wraps translateX(-offset)
+      // modulo one sequence width, which assumes left-to-right tiling. Without
+      // this, document dir="rtl" flips the flex row and periodically exposes a
+      // blank edge (perfect -> gap -> perfect cycle). Motion stays identical
+      // in all languages by design.
+      dir="ltr"
     >
       <div
         className="logoloop__track"

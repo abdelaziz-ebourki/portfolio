@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" class="dark">
+<html lang="en" dir="ltr" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -13,13 +13,20 @@
       ;(function () {
         try {
           var theme = localStorage.getItem("portfolio-theme")
-          if (
-            theme === "light" ||
-            (!theme && window.matchMedia("(prefers-color-scheme: light)").matches)
-          ) {
+          if (theme === "light") {
             document.documentElement.classList.remove("dark")
             document.documentElement.classList.add("light")
           }
+          var stored = localStorage.getItem("portfolio-lang")
+          var lang = stored === "en" || stored === "fr" || stored === "ar"
+            ? stored
+            : (navigator.language || "en").toLowerCase().startsWith("ar")
+              ? "ar"
+              : (navigator.language || "en").toLowerCase().startsWith("fr")
+                ? "fr"
+                : "en"
+          document.documentElement.lang = lang
+          document.documentElement.dir = lang === "ar" ? "rtl" : "ltr"
         } catch (e) {}
       })()
     </script>

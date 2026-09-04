@@ -12,6 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
 import {
   BookOpen,
   CalendarDays,
@@ -29,18 +31,33 @@ const icons = {
   cloud: Cloud,
 } as const
 
+function projectHeaderClass(project: Project): string {
+  if (project.featured) return cn("bg-linear-to-br", project.gradient)
+  return "bg-muted/40"
+}
+
+function projectCardClass(project: Project): string {
+  return cn(
+    "group flex h-full flex-col overflow-hidden bg-card/60 transition-all hover:border-foreground/25 hover:shadow-lg",
+    project.featured && "sm:col-span-2"
+  )
+}
+
 function ProjectCard({ project }: { project: Project }) {
   const { t } = useI18n()
   const Icon = icons[project.icon]
 
   return (
-    <Card className="group flex h-full flex-col overflow-hidden bg-card/60 transition-all hover:border-foreground/25 hover:shadow-lg">
+    <Card className={projectCardClass(project)}>
       <div
-        className={`relative flex h-36 items-center justify-center border-b border-border bg-linear-to-br ${project.gradient}`}
+        className={cn(
+          "relative flex h-36 items-center justify-center border-b border-border",
+          projectHeaderClass(project)
+        )}
       >
         <Icon className="size-10 text-muted-foreground/70 transition-transform duration-300 group-hover:scale-110" />
         {project.featured && (
-          <Badge className="absolute left-3 top-3 gap-1 rounded-full">
+          <Badge variant="featured" className="absolute start-3 top-3 gap-1">
             <Star className="size-3" />
             {t(ui.projects.featured)}
           </Badge>
@@ -60,11 +77,12 @@ function ProjectCard({ project }: { project: Project }) {
         ))}
       </CardContent>
 
-      <CardFooter className="gap-2 border-t border-border/60 py-3!">
+      <Separator />
+      <CardFooter className="gap-2 py-3!">
         {project.repoUrl && (
           <Button asChild variant="ghost" size="sm">
             <a href={project.repoUrl} target="_blank" rel="noreferrer">
-              <Github className="size-4" />
+              <Github data-icon="inline-start" />
               {t(ui.projects.viewCode)}
             </a>
           </Button>
@@ -72,7 +90,7 @@ function ProjectCard({ project }: { project: Project }) {
         {project.demoUrl && (
           <Button asChild variant="ghost" size="sm">
             <a href={project.demoUrl} target="_blank" rel="noreferrer">
-              <ExternalLink className="size-4" />
+              <ExternalLink data-icon="inline-start" />
               {t(ui.projects.liveDemo)}
             </a>
           </Button>
@@ -96,9 +114,9 @@ export function Projects() {
       </div>
 
       <div className="mt-8 flex justify-center">
-        <Button asChild variant="link" className="gap-1.5 text-muted-foreground">
+        <Button asChild variant="link" className="text-muted-foreground">
           <a href="https://github.com/alexmoreau-dev" target="_blank" rel="noreferrer">
-            <Github className="size-4" />
+            <Github data-icon="inline-start" />
             {t(ui.projects.moreOnGithub)}
           </a>
         </Button>

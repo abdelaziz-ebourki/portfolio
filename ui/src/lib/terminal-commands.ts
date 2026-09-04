@@ -4,12 +4,12 @@ export const CHEAT_COMMANDS = [
   "about",
   "skills",
   "projects",
-  "experience",
   "education",
   "contact",
   "ls",
   "clear",
-  "sudo hire-me",
+  "theme",
+  "lang",
 ] as const
 
 export const TAB_COMMANDS = [

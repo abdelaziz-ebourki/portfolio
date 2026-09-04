@@ -6,12 +6,14 @@ export const persona = {
   role: {
     en: "Full-Stack Developer",
     fr: "Développeur Full-Stack",
+    ar: "مطوّر Full-Stack",
   } satisfies Localized,
   tagline: {
     en: "Computer Science graduate building reliable web applications with Java & React.",
     fr: "Diplômé en informatique, je conçois des applications web fiables avec Java et React.",
+    ar: "خريج علوم الحاسب، أبني تطبيقات ويب موثوقة باستخدام Java وReact.",
   } satisfies Localized,
-  location: { en: "Lyon, France", fr: "Lyon, France" } satisfies Localized,
+  location: { en: "Lyon, France", fr: "Lyon, France", ar: "ليون، فرنسا" } satisfies Localized,
   email: "alex.moreau.dev@example.com",
   github: "https://github.com/alexmoreau-dev",
   linkedin: "https://www.linkedin.com/in/alexmoreau-dev",
@@ -33,10 +35,11 @@ export const projects: Project[] = [
     title: "Portfolio Sync",
     icon: "webhook",
     gradient:
-      "from-emerald-500/20 via-teal-500/10 to-transparent dark:from-emerald-400/15 dark:via-teal-400/5",
+      "from-[var(--grad-portfolio-from)] via-[var(--grad-portfolio-via)] to-transparent",
     description: {
       en: "Self-updating portfolio. GitHub webhooks trigger a Spring Boot API that syncs project manifests into PostgreSQL, rendered by a React UI.",
       fr: "Portfolio auto-synchronisé. Des webhooks GitHub déclenchent une API Spring Boot qui synchronise les projets dans PostgreSQL, affichés par une interface React.",
+      ar: "ملف أعمال ذاتي التحديث. تُطلق webhooks من GitHub واجهة Spring Boot التي تُزامن المشاريع في PostgreSQL، وتعرضها واجهة React.",
     },
     stack: ["Java 21", "Spring Boot", "PostgreSQL", "React", "Webhooks"],
     repoUrl: "https://github.com/alexmoreau-dev/portfolio-sync",
@@ -46,10 +49,11 @@ export const projects: Project[] = [
     title: "CampusFlow",
     icon: "calendar",
     gradient:
-      "from-sky-500/20 via-indigo-500/10 to-transparent dark:from-sky-400/15 dark:via-indigo-400/5",
+      "from-[var(--grad-campus-from)] via-[var(--grad-campus-via)] to-transparent",
     description: {
       en: "Room and equipment booking platform for a university campus, with conflict detection and role-based access.",
       fr: "Plateforme de réservation de salles et de matériel pour un campus universitaire, avec détection de conflits et gestion des rôles.",
+      ar: "منصة حجز القاعات والمعدات للحرم الجامعي، مع كشف التعارضات وإدارة الوصول حسب الأدوار.",
     },
     stack: ["Spring Boot", "React", "TypeScript", "PostgreSQL", "Docker"],
     repoUrl: "https://github.com/alexmoreau-dev/campusflow",
@@ -60,10 +64,11 @@ export const projects: Project[] = [
     title: "LibriTrack",
     icon: "book",
     gradient:
-      "from-amber-500/20 via-orange-500/10 to-transparent dark:from-amber-400/15 dark:via-orange-400/5",
+      "from-[var(--grad-libri-from)] via-[var(--grad-libri-via)] to-transparent",
     description: {
       en: "Library management system: catalog, loans, late-return notifications and an admin dashboard with usage statistics.",
       fr: "Système de gestion de bibliothèque : catalogue, prêts, relances automatiques et tableau de bord administrateur avec statistiques.",
+      ar: "نظام إدارة المكتبات: فهرس وإعارات وتنبيهات التأخير ولوحة إدارة مع إحصاءات الاستخدام.",
     },
     stack: ["Java", "Spring Security", "Thymeleaf", "PostgreSQL"],
     repoUrl: "https://github.com/alexmoreau-dev/libritrack",
@@ -72,10 +77,11 @@ export const projects: Project[] = [
     title: "MeteoLens",
     icon: "cloud",
     gradient:
-      "from-violet-500/20 via-fuchsia-500/10 to-transparent dark:from-violet-400/15 dark:via-fuchsia-400/5",
+      "from-[var(--grad-meteo-from)] via-[var(--grad-meteo-via)] to-transparent",
     description: {
       en: "Weather dashboard consuming Open-Meteo, with saved locations, hourly forecasts and offline caching.",
       fr: "Tableau de bord météo utilisant Open-Meteo, avec lieux favoris, prévisions horaires et cache hors ligne.",
+      ar: "لوحة طقس تعتمد على Open-Meteo، مع مواقع محفوظة وتوقعات بالساعة وتخزين مؤقت دون اتصال.",
     },
     stack: ["React", "TypeScript", "Vite", "Tailwind CSS"],
     repoUrl: "https://github.com/alexmoreau-dev/meteolens",
@@ -90,82 +96,20 @@ export type SkillGroup = {
 
 export const skillGroups: SkillGroup[] = [
   {
-    label: { en: "Languages", fr: "Langages" },
+    label: { en: "Languages", fr: "Langages", ar: "اللغات" },
     items: ["Java", "TypeScript", "SQL", "Python", "HTML / CSS"],
   },
   {
-    label: { en: "Backend", fr: "Back-end" },
+    label: { en: "Backend", fr: "Back-end", ar: "الواجهة الخلفية" },
     items: ["Spring Boot", "Spring Security", "REST APIs", "JUnit 5", "Flyway"],
   },
   {
-    label: { en: "Frontend", fr: "Front-end" },
+    label: { en: "Frontend", fr: "Front-end", ar: "الواجهة الأمامية" },
     items: ["React", "Vite", "Tailwind CSS", "shadcn/ui", "React Query"],
   },
   {
-    label: { en: "Data & Tools", fr: "Données & Outils" },
+    label: { en: "Data & Tools", fr: "Données & Outils", ar: "البيانات والأدوات" },
     items: ["PostgreSQL", "Redis", "Docker", "Git & GitHub", "Linux"],
-  },
-]
-
-export type ExperienceItem = {
-  role: Localized
-  company: string
-  period: string
-  summary: Localized
-  highlights: Array<Localized>
-  stack: string[]
-}
-
-export const experience: ExperienceItem[] = [
-  {
-    role: {
-      en: "Software Engineering Intern",
-      fr: "Stagiaire ingénierie logicielle",
-    },
-    company: "Nexvia Solutions · Lyon",
-    period: "2026",
-    summary: {
-      en: "Six-month end-of-degree internship on the internal logistics platform.",
-      fr: "Stage de fin de licence de six mois sur la plateforme logistique interne.",
-    },
-    highlights: [
-      {
-        en: "Built 12 REST endpoints in Spring Boot for the order-tracking module.",
-        fr: "Développé 12 points d'API REST en Spring Boot pour le module de suivi des commandes.",
-      },
-      {
-        en: "Raised backend test coverage from 34% to 78% with JUnit and Testcontainers.",
-        fr: "Porté la couverture de tests back-end de 34 % à 78 % avec JUnit et Testcontainers.",
-      },
-      {
-        en: "Shipped a React admin view used daily by the operations team.",
-        fr: "Livré une interface d'administration React utilisée quotidiennement par l'équipe opérations.",
-      },
-    ],
-    stack: ["Java 21", "Spring Boot", "React", "PostgreSQL"],
-  },
-  {
-    role: {
-      en: "Teaching Assistant — Algorithms",
-      fr: "Assistant pédagogique — Algorithmique",
-    },
-    company: "Université Claude Bernard Lyon 1",
-    period: "2024 – 2026",
-    summary: {
-      en: "Tutored first-year students in algorithms and Java labs.",
-      fr: "Accompagnement d'étudiants de première année en algorithmique et TP Java.",
-    },
-    highlights: [
-      {
-        en: "Led weekly lab sessions for groups of 25+ students.",
-        fr: "Animé des séances de TP hebdomadaires pour des groupes de plus de 25 étudiants.",
-      },
-      {
-        en: "Authored graded exercises now reused in the standard curriculum.",
-        fr: "Rédigé des exercices notés désormais réutilisés dans le cursus standard.",
-      },
-    ],
-    stack: ["Java", "Algorithmes", "Pédagogie"],
   },
 ]
 
@@ -183,6 +127,7 @@ export const education: EducationItem[] = [
     degree: {
       en: "Master's Degree in Software Engineering",
       fr: "Master Génie Logiciel",
+      ar: "ماجستير في هندسة البرمجيات",
     },
     school: "Université Claude Bernard Lyon 1",
     period: "2026 – 2028",
@@ -190,16 +135,19 @@ export const education: EducationItem[] = [
     statusLabel: {
       en: "In progress",
       fr: "En cours",
+      ar: "قيد الدراسة",
     },
     detail: {
       en: "Focus on distributed systems, software architecture and DevOps — pursued under a work-study contract.",
       fr: "Axes : systèmes distribués, architecture logicielle et DevOps — en contrat d'alternance.",
+      ar: "التركيز على الأنظمة الموزعة وبنية البرمجيات وDevOps — ضمن عقد دراسة وعمل.",
     },
   },
   {
     degree: {
       en: "Bachelor's Degree in Computer Science",
       fr: "Licence Informatique",
+      ar: "إجازة في علوم الحاسب",
     },
     school: "Université Claude Bernard Lyon 1",
     period: "2023 – 2026",
@@ -207,10 +155,12 @@ export const education: EducationItem[] = [
     statusLabel: {
       en: "Graduated, honours",
       fr: "Obtenue, mention Bien",
+      ar: "تخرج بميزة",
     },
     detail: {
       en: "Java / Spring Boot specialization, databases and web development. Final-year internship at Nexvia Solutions.",
       fr: "Spécialisation Java / Spring Boot, bases de données et développement web. Stage de fin d'études chez Nexvia Solutions.",
+      ar: "تخصص Java ‏/ Spring Boot وقواعد البيانات وتطوير الويب. تدريب نهاية الدراسة لدى Nexvia Solutions.",
     },
   },
 ]

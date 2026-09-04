@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
+import { useTheme } from "@/lib/theme"
 import { TAB_COMMANDS } from "@/lib/terminal-commands"
 import { SectionHeading } from "@/components/section-heading"
 import { TerminalSidePanel } from "@/components/terminal-side-panel"
 import { TerminalWindow } from "@/components/terminal-window"
+import { cn } from "@/lib/utils"
 
 type LineKind = "input" | "output" | "error" | "success"
 
@@ -26,7 +28,8 @@ const lineStyles: Record<LineKind, string> = {
 }
 
 export function TerminalSection() {
-  const { t } = useI18n()
+  const { t, lang, setLang } = useI18n()
+  const { theme, setTheme, toggleTheme } = useTheme()
   const inputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -51,6 +54,7 @@ export function TerminalSection() {
     ])
   }, [])
 
+  // fallow-ignore-next-line complexity -- run handles 12 terminal commands, intentional switch
   const run = useCallback((raw: string) => {
     const input = raw.trim()
     setLines((prev) => [...prev, { id: nextId(), kind: "input", content: raw }])
@@ -59,7 +63,7 @@ export function TerminalSection() {
     setHistory((prev) => [...prev, input])
     setHistoryIndex(null)
 
-    const [command, ...args] = input.toLowerCase().split(/\s+/)
+    const [command, arg] = input.toLowerCase().split(/\s+/)
 
     switch (command) {
       case "help":
@@ -77,9 +81,6 @@ export function TerminalSection() {
       case "projects":
         respond(t(ui.terminal.projects).split("\n"))
         break
-      case "experience":
-        respond(t(ui.terminal.experience).split("\n"))
-        break
       case "education":
         respond(t(ui.terminal.education).split("\n"))
         break
@@ -92,13 +93,32 @@ export function TerminalSection() {
       case "clear":
         setLines([])
         break
-      case "sudo":
-        if (args[0] === "hire-me") {
-          respond([t(ui.terminal.sudoGranted), persona.email], "success")
+      case "theme": {
+        if (!arg) {
+          respond([`theme: ${theme} (usage: theme [light|dark|toggle])`], "success")
+        } else if (arg === "toggle") {
+          toggleTheme()
+          respond([`theme → ${theme === "dark" ? "light" : "dark"}`], "success")
+        } else if (arg === "light" || arg === "dark") {
+          setTheme(arg)
+          respond([`theme → ${arg}`], "success")
         } else {
-          respond(["usage: sudo hire-me"], "error")
+          respond(["usage: theme [light|dark|toggle]"], "error")
         }
         break
+      }
+      case "lang":
+      case "language": {
+        if (!arg) {
+          respond([`lang: ${lang} (usage: lang [en|fr|ar])`], "success")
+        } else if (arg === "en" || arg === "fr" || arg === "ar") {
+          setLang(arg)
+          respond([`lang → ${arg}`], "success")
+        } else {
+          respond(["usage: lang [en|fr|ar]"], "error")
+        }
+        break
+      }
       case "rm":
         respond([t(ui.terminal.rmDenied)], "error")
         break
@@ -108,7 +128,7 @@ export function TerminalSection() {
       default:
         respond([`${t(ui.terminal.unknown)} ${command}`, t(ui.terminal.hint)], "error")
     }
-  }, [t, respond])
+  }, [t, respond, theme, lang, setTheme, toggleTheme, setLang])
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -159,14 +179,14 @@ export function TerminalSection() {
         >
           <div
             ref={scrollRef}
-            className="min-h-[20rem] max-h-80 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            className="min-h-[20rem] max-h-80 min-h-0 flex-1 overflow-y-auto overflow-x-hidden pe-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             aria-live="polite"
             aria-label={t(ui.terminal.ariaLabel)}
           >
             {lines.map((line) => (
-              <p key={line.id} className={`${lineStyles[line.kind]} min-w-0 overflow-x-hidden`}>
+              <p key={line.id} className={cn(lineStyles[line.kind], "min-w-0 overflow-x-hidden")}>
                 {line.kind === "input" && (
-                  <span className="mr-2 select-none text-primary" aria-hidden>
+                  <span className="me-2 select-none text-primary" aria-hidden>
                     $
                   </span>
                 )}
@@ -200,8 +220,10 @@ export function TerminalSection() {
                 </span>
                 <span
                   aria-hidden
-                  className="ml-1 inline-block h-3.5 w-1.5 shrink-0 translate-y-0.5 animate-blink bg-primary"
-                />
+                  className="ms-1 inline-block shrink-0 animate-blink text-primary"
+                >
+                  █
+                </span>
               </span>
             </div>
           </form>
