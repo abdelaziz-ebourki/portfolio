@@ -51,6 +51,7 @@
     { "file": "src/components/ui/sheet.tsx", "exports": ["SheetFooter", "SheetDescription"] }
   ],
   "health": {
-    "ignore": ["src/components/FaultyTerminal.jsx"]
+    // Vendored react-bits components — not ours to refactor
+    "ignore": ["src/components/FaultyTerminal.jsx", "src/components/TextType.jsx"]
   }
 }

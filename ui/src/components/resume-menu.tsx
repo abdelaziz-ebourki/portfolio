@@ -11,10 +11,12 @@ import {
 import { Check, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+const baseUrl = import.meta.env.BASE_URL || "/"
+
 const resumeFiles: Array<{ lang: Lang; file: string }> = [
-  { lang: "en", file: "/resumes/cv-en.pdf" },
-  { lang: "fr", file: "/resumes/cv-fr.pdf" },
-  { lang: "ar", file: "/resumes/cv-ar.pdf" },
+  { lang: "en", file: `${baseUrl}resumes/cv-en.pdf` },
+  { lang: "fr", file: `${baseUrl}resumes/cv-fr.pdf` },
+  { lang: "ar", file: `${baseUrl}resumes/cv-ar.pdf` },
 ]
 
 export function ResumeMenu({
@@ -25,9 +27,10 @@ export function ResumeMenu({
   onPick?: () => void
 }) {
   const { lang, t } = useI18n()
-  const ordered = [...resumeFiles].sort((a, b) =>
-    a.lang === lang ? -1 : b.lang === lang ? 1 : 0
-  )
+  const ordered = [
+    ...resumeFiles.filter((entry) => entry.lang === lang),
+    ...resumeFiles.filter((entry) => entry.lang !== lang),
+  ]
 
   return (
     <DropdownMenu>
@@ -51,7 +54,7 @@ export function ResumeMenu({
               onSelect={onPick}
               className="flex items-center justify-between"
             >
-              <a href={file} download={`cv-${fileLang}.pdf`}>
+              <a href={file} download={`cv-${fileLang}.pdf`} className="w-full">
                 {t(ui.resume.fileNames[fileLang])}
                 {fileLang === lang && <Check className="size-4" />}
               </a>

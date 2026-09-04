@@ -73,6 +73,9 @@ const TextType = ({
         yoyo: true,
         ease: 'power2.inOut'
       });
+      return () => {
+        gsap.killTweensOf(cursorRef.current);
+      };
     }
   }, [showCursor, cursorBlinkDuration]);
 

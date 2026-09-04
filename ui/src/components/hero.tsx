@@ -78,6 +78,13 @@ export function Hero() {
 	const heroRef = useRef<HTMLElement>(null);
 	const isVisible = useIsVisible(heroRef);
 	const isPaused = prefersReduced || !isVisible;
+	// Intro stagger plays once on first mount; lang-change remounts of the
+	// TextType lines (keyed by translated text) must not replay the delays.
+	const introPlayedRef = useRef(false);
+	useEffect(() => {
+		introPlayedRef.current = true;
+	}, []);
+	const introDelay = (ms: number) => (introPlayedRef.current ? 0 : ms);
 
 	const faultyTerminalProps = isLight
 		? {
@@ -153,7 +160,7 @@ export function Hero() {
 								as="span"
 								className="font-mono text-sm text-primary/80"
 								typingSpeed={68}
-								initialDelay={700}
+								initialDelay={introDelay(700)}
 								loop={false}
 								showCursor
 								cursorCharacter="█"
@@ -181,7 +188,7 @@ export function Hero() {
 								as="span"
 								className="font-bold tracking-tight crt-glow"
 								typingSpeed={62}
-								initialDelay={1700}
+								initialDelay={introDelay(1700)}
 								loop={false}
 								showCursor
 								cursorCharacter="█"
@@ -208,7 +215,7 @@ export function Hero() {
 									as="span"
 									className="font-medium text-foreground"
 									typingSpeed={38}
-									initialDelay={3400}
+									initialDelay={introDelay(3400)}
 									loop={false}
 									showCursor
 									cursorCharacter="█"
