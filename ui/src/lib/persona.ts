@@ -1,4 +1,12 @@
 import type { Localized } from "@/lib/i18n"
+import type {
+  ProjectKind,
+  ProjectLinks,
+  ProjectPeriod,
+  ProjectRepo,
+  ProjectRole,
+  ProjectStatus,
+} from "@/lib/project-dto"
 
 export const persona = {
   name: "Alex Moreau",
@@ -20,72 +28,194 @@ export const persona = {
 }
 
 export type Project = {
-  title: string
+  slug: string
   icon: "webhook" | "calendar" | "book" | "cloud"
   gradient: string
-  description: Localized
+  name: Localized
+  tagline: Localized
+  status: ProjectStatus
+  role: ProjectRole
+  teamSize?: number
+  kind: ProjectKind
+  period: ProjectPeriod
   stack: string[]
-  repoUrl?: string
-  demoUrl?: string
+  repos: ProjectRepo[]
+  links: ProjectLinks
+  highlights: Record<"en" | "fr" | "ar", string[]>
+  metrics: { label: Localized; value: string }[]
   featured?: boolean
 }
 
 export const projects: Project[] = [
   {
-    title: "Portfolio Sync",
+    slug: "portfolio-sync",
     icon: "webhook",
     gradient:
       "from-[var(--grad-portfolio-from)] via-[var(--grad-portfolio-via)] to-transparent",
-    description: {
+    name: {
+      en: "Portfolio Sync",
+      fr: "Portfolio Sync",
+      ar: "مزامنة الملف",
+    },
+    tagline: {
       en: "Self-updating portfolio. GitHub webhooks trigger a Spring Boot API that syncs project manifests into PostgreSQL, rendered by a React UI.",
       fr: "Portfolio auto-synchronisé. Des webhooks GitHub déclenchent une API Spring Boot qui synchronise les projets dans PostgreSQL, affichés par une interface React.",
       ar: "ملف أعمال ذاتي التحديث. تُطلق webhooks من GitHub واجهة Spring Boot التي تُزامن المشاريع في PostgreSQL، وتعرضها واجهة React.",
     },
+    status: "in-progress",
+    role: "solo",
+    kind: "personal",
+    period: { start: "2025-09" },
     stack: ["Java 21", "Spring Boot", "PostgreSQL", "React", "Webhooks"],
-    repoUrl: "https://github.com/alexmoreau-dev/portfolio-sync",
+    repos: [{ label: "monorepo", url: "https://github.com/alexmoreau-dev/portfolio-sync" }],
+    links: {},
+    highlights: {
+      en: [
+        "Push to main triggers a sync within seconds via GitHub webhooks",
+        "HMAC-verified receiver upserts manifests into PostgreSQL",
+        "Trilingual UI with full RTL support renders the synced data",
+      ],
+      fr: [
+        "Un push sur main déclenche une synchro en quelques secondes via webhooks",
+        "Un récepteur vérifié HMAC synchronise les manifestes dans PostgreSQL",
+        "Une interface trilingue avec support RTL affiche les données",
+      ],
+      ar: [
+        "الدفع إلى main يُطلق المزامنة خلال ثوانٍ عبر webhooks",
+        "مستقبِل مُتحقق منه بـ HMAC يُزامن البيانات في PostgreSQL",
+        "واجهة بثلاث لغات مع دعم كامل للاتجاه RTL تعرض البيانات",
+      ],
+    },
+    metrics: [],
     featured: true,
   },
   {
-    title: "CampusFlow",
+    slug: "campusflow",
     icon: "calendar",
     gradient:
       "from-[var(--grad-campus-from)] via-[var(--grad-campus-via)] to-transparent",
-    description: {
+    name: {
+      en: "CampusFlow",
+      fr: "CampusFlow",
+      ar: "CampusFlow",
+    },
+    tagline: {
       en: "Room and equipment booking platform for a university campus, with conflict detection and role-based access.",
       fr: "Plateforme de réservation de salles et de matériel pour un campus universitaire, avec détection de conflits et gestion des rôles.",
       ar: "منصة حجز القاعات والمعدات للحرم الجامعي، مع كشف التعارضات وإدارة الوصول حسب الأدوار.",
     },
+    status: "shipped",
+    role: "team",
+    teamSize: 4,
+    kind: "academic",
+    period: { start: "2025-02", end: "2025-06" },
     stack: ["Spring Boot", "React", "TypeScript", "PostgreSQL", "Docker"],
-    repoUrl: "https://github.com/alexmoreau-dev/campusflow",
-    demoUrl: "https://campusflow.example.com",
+    repos: [
+      { label: "api", url: "https://github.com/alexmoreau-dev/campusflow-api" },
+      { label: "ui", url: "https://github.com/alexmoreau-dev/campusflow-ui" },
+    ],
+    links: { demo: "https://campusflow.example.com" },
+    highlights: {
+      en: [
+        "Conflict detection across rooms, equipment and time slots",
+        "Role-based access for students, staff and admins",
+        "Shipped with Docker behind a single Compose stack",
+      ],
+      fr: [
+        "Détection de conflits sur salles, matériel et créneaux",
+        "Accès par rôles pour étudiants, personnel et admins",
+        "Livré avec Docker via une stack Compose unique",
+      ],
+      ar: [
+        "كشف التعارضات عبر القاعات والمعدات والمواعيد",
+        "وصول حسب الأدوار للطلاب والموظفين والإداريين",
+        "أُطلق عبر Docker ضمن حزمة Compose واحدة",
+      ],
+    },
+    metrics: [],
     featured: true,
   },
   {
-    title: "LibriTrack",
+    slug: "libritrack",
     icon: "book",
     gradient:
       "from-[var(--grad-libri-from)] via-[var(--grad-libri-via)] to-transparent",
-    description: {
+    name: {
+      en: "LibriTrack",
+      fr: "LibriTrack",
+      ar: "LibriTrack",
+    },
+    tagline: {
       en: "Library management system: catalog, loans, late-return notifications and an admin dashboard with usage statistics.",
       fr: "Système de gestion de bibliothèque : catalogue, prêts, relances automatiques et tableau de bord administrateur avec statistiques.",
       ar: "نظام إدارة المكتبات: فهرس وإعارات وتنبيهات التأخير ولوحة إدارة مع إحصاءات الاستخدام.",
     },
+    status: "maintained",
+    role: "solo",
+    kind: "academic",
+    period: { start: "2024-09", end: "2025-01" },
     stack: ["Java", "Spring Security", "Thymeleaf", "PostgreSQL"],
-    repoUrl: "https://github.com/alexmoreau-dev/libritrack",
+    repos: [{ label: "monorepo", url: "https://github.com/alexmoreau-dev/libritrack" }],
+    links: {},
+    highlights: {
+      en: [
+        "Catalog, loans and automatic late-return notifications",
+        "Admin dashboard with borrowing statistics",
+        "Secured end to end with Spring Security roles",
+      ],
+      fr: [
+        "Catalogue, prêts et relances automatiques de retard",
+        "Tableau de bord admin avec statistiques d'emprunt",
+        "Sécurisé de bout en bout par rôles Spring Security",
+      ],
+      ar: [
+        "فهرس وإعارات وتنبيهات تلقائية بالتأخير",
+        "لوحة إدارة مع إحصاءات الإعارة",
+        "مؤمّن بالكامل بأدوار Spring Security",
+      ],
+    },
+    metrics: [],
   },
   {
-    title: "MeteoLens",
+    slug: "meteolens",
     icon: "cloud",
     gradient:
       "from-[var(--grad-meteo-from)] via-[var(--grad-meteo-via)] to-transparent",
-    description: {
+    name: {
+      en: "MeteoLens",
+      fr: "MeteoLens",
+      ar: "MeteoLens",
+    },
+    tagline: {
       en: "Weather dashboard consuming Open-Meteo, with saved locations, hourly forecasts and offline caching.",
       fr: "Tableau de bord météo utilisant Open-Meteo, avec lieux favoris, prévisions horaires et cache hors ligne.",
       ar: "لوحة طقس تعتمد على Open-Meteo، مع مواقع محفوظة وتوقعات بالساعة وتخزين مؤقت دون اتصال.",
     },
+    status: "shipped",
+    role: "solo",
+    kind: "personal",
+    period: { start: "2024-03", end: "2024-05" },
     stack: ["React", "TypeScript", "Vite", "Tailwind CSS"],
-    repoUrl: "https://github.com/alexmoreau-dev/meteolens",
-    demoUrl: "https://meteolens.example.com",
+    repos: [{ label: "ui", url: "https://github.com/alexmoreau-dev/meteolens" }],
+    links: { demo: "https://meteolens.example.com" },
+    highlights: {
+      en: [
+        "Hourly forecasts with saved locations",
+        "Offline caching of last-viewed data",
+        "Zero-backend build on the Open-Meteo API",
+      ],
+      fr: [
+        "Prévisions horaires avec lieux favoris",
+        "Cache hors ligne des dernières données",
+        "Build sans back-end sur l'API Open-Meteo",
+      ],
+      ar: [
+        "توقعات بالساعة مع مواقع محفوظة",
+        "تخزين مؤقت دون اتصال لآخر البيانات",
+        "بناء دون خادم خلفي على واجهة Open-Meteo",
+      ],
+    },
+    metrics: [],
   },
 ]
 
