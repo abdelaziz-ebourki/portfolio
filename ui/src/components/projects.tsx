@@ -38,6 +38,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import {
@@ -45,6 +52,7 @@ import {
   Briefcase,
   CalendarDays,
   Check,
+  ChevronDown,
   Cloud,
   ExternalLink,
   FileText,
@@ -392,19 +400,39 @@ function MetaRow({ dto, labels }: { dto: ProjectDto; labels: Labels }) {
 
 function RepoButtons({ dto }: { dto: ProjectDto }) {
   const { t } = useI18n()
+  const repos = dto.repos.filter((repo) => isSafeUrl(repo.url))
+  if (repos.length === 0) return null
+  if (repos.length === 1) {
+    return (
+      <Button asChild variant="ghost" size="sm">
+        <a href={repos[0].url} target="_blank" rel="noreferrer">
+          <Github data-icon="inline-start" />
+          {t(ui.projects.viewCode)}
+        </a>
+      </Button>
+    )
+  }
   return (
-    <>
-      {dto.repos.map((repo, i) =>
-        isSafeUrl(repo.url) ? (
-          <Button key={`${repo.label}-${i}`} asChild variant="ghost" size="sm">
-            <a href={repo.url} target="_blank" rel="noreferrer">
-              <Github data-icon="inline-start" />
-              {dto.repos.length > 1 ? repo.label : t(ui.projects.viewCode)}
-            </a>
-          </Button>
-        ) : null
-      )}
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <Github data-icon="inline-start" />
+          {t(ui.projects.viewCode)}
+          <ChevronDown data-icon="inline-end" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuGroup>
+          {repos.map((repo, i) => (
+            <DropdownMenuItem key={`${repo.label}-${i}`} asChild>
+              <a href={repo.url} target="_blank" rel="noreferrer">
+                {repo.label}
+              </a>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
