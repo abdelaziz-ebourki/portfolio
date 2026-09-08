@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, createElement, useMemo, useCallback } from 'react';
-import { gsap } from 'gsap';
 
 const TextType = ({
   text,
@@ -29,7 +28,6 @@ const TextType = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(!startOnVisible);
-  const cursorRef = useRef(null);
   const containerRef = useRef(null);
 
   const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
@@ -63,22 +61,7 @@ const TextType = ({
     return () => observer.disconnect();
   }, [startOnVisible]);
 
-  useEffect(() => {
-    if (showCursor && cursorRef.current) {
-      gsap.set(cursorRef.current, { opacity: 1 });
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        duration: cursorBlinkDuration,
-        repeat: -1,
-        yoyo: true,
-        ease: 'power2.inOut'
-      });
-      return () => {
-        gsap.killTweensOf(cursorRef.current);
-      };
-    }
-  }, [showCursor, cursorBlinkDuration]);
-
+  // Cursor blink is pure CSS (animate-blink, duration via prop): no JS ticker.
   useEffect(() => {
     if (!isVisible) return;
 
@@ -165,8 +148,8 @@ const TextType = ({
     </span>,
     showCursor && (
       <span
-        ref={cursorRef}
-        className={`ms-1 inline-block opacity-100 ${shouldHideCursor ? 'hidden' : ''} ${cursorClassName}`}
+        className={`ms-1 inline-block animate-blink opacity-100 ${shouldHideCursor ? 'hidden' : ''} ${cursorClassName}`}
+        style={{ animationDuration: `${cursorBlinkDuration}s` }}
       >
         {cursorCharacter}
       </span>

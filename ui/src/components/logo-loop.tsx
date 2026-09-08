@@ -126,6 +126,7 @@ function useAnimationLoop(
       const target = isHovered && hoverSpeed !== undefined ? hoverSpeed : targetVelocity
       const easingFactor = 1 - Math.exp(-deltaTime / ANIMATION_CONFIG.SMOOTH_TAU)
       velocityRef.current += (target - velocityRef.current) * easingFactor
+      if (Math.abs(velocityRef.current) < 0.01) velocityRef.current = 0
 
       if (seqWidth > 0) {
         let nextOffset = offsetRef.current + velocityRef.current * deltaTime
@@ -134,6 +135,12 @@ function useAnimationLoop(
         track.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`
       }
 
+      // Park when idle: no rAF wakeups for a static track. The effect
+      // re-runs (and restarts the loop) when targetVelocity changes.
+      if (target === 0 && velocityRef.current === 0) {
+        rafRef.current = null
+        return
+      }
       rafRef.current = requestAnimationFrame(animate)
     }
 

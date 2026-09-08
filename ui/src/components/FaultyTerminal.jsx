@@ -254,9 +254,16 @@ export default function FaultyTerminal({
   const loadAnimationStartRef = useRef(0);
   const timeOffsetRef = useRef(Math.random() * 100);
   const pauseRef = useRef(pause);
+  const updateRef = useRef(null);
 
   useEffect(() => {
+    const wasPaused = pauseRef.current;
     pauseRef.current = pause;
+    // A parked loop restarts here; the loop parks itself (rafRef = 0)
+    // once it renders its frozen frame (see update below).
+    if (wasPaused && !pause && !rafRef.current && updateRef.current) {
+      rafRef.current = requestAnimationFrame(updateRef.current);
+    }
   }, [pause]);
 
   const tintVec = useMemo(() => hexToRgb(tint), [tint]);
@@ -277,7 +284,7 @@ export default function FaultyTerminal({
     const ctn = containerRef.current;
     if (!ctn) return;
 
-    const renderer = new Renderer({ dpr });
+    const renderer = new Renderer({ dpr, powerPreference: 'low-power' });
     rendererRef.current = renderer;
     const gl = renderer.gl;
     gl.clearColor(bgVec[0], bgVec[1], bgVec[2], 1);
@@ -333,7 +340,17 @@ export default function FaultyTerminal({
     resizeObserver.observe(ctn);
     resize();
 
+    const isSuspended = () => pauseRef.current || document.hidden;
+
     const update = t => {
+      if (isSuspended()) {
+        // Freeze on the last frame, then fully park: no GL work, no wakeups.
+        // The pause-sync effect (or visibility handler) restarts the loop.
+        program.uniforms.iTime.value = frozenTimeRef.current;
+        renderer.render({ scene: mesh });
+        rafRef.current = 0;
+        return;
+      }
       rafRef.current = requestAnimationFrame(update);
 
       if (pageLoadAnimation && loadAnimationStartRef.current === 0) {
@@ -369,13 +386,23 @@ export default function FaultyTerminal({
 
       renderer.render({ scene: mesh });
     };
+    updateRef.current = update;
     rafRef.current = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
 
     if (mouseReact) window.addEventListener('mousemove', handleMouseMove);
 
+    const onVisibilityChange = () => {
+      if (!document.hidden && !pauseRef.current && !rafRef.current && updateRef.current) {
+        rafRef.current = requestAnimationFrame(updateRef.current);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     return () => {
       cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       resizeObserver.disconnect();
       if (mouseReact) window.removeEventListener('mousemove', handleMouseMove);
       if (gl.canvas.parentElement === ctn) ctn.removeChild(gl.canvas);

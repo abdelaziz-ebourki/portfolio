@@ -136,11 +136,14 @@ export function Hero() {
 					mouseReact={!isPaused && !isMobile}
 					mouseStrength={0.14}
 					pageLoadAnimation={!isPaused}
+					// Backing store is 0.66x CSS pixels on desktop: the fbm shader
+					// cost scales quadratically with pixels (measured), and the
+					// upscaled noise/scanline look is visually identical.
 					dpr={
 						typeof window !== "undefined"
 							? isMobile
 								? 1
-								: Math.min(window.devicePixelRatio || 1, 2)
+								: Math.min(window.devicePixelRatio || 1, 2) * 0.66
 							: 1
 					}
 				/>
