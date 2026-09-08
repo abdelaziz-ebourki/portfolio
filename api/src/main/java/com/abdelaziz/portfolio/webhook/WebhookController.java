@@ -3,6 +3,8 @@ package com.abdelaziz.portfolio.webhook;
 import java.io.IOException;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abdelaziz.portfolio.sync.ProjectSyncService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,11 +36,16 @@ public class WebhookController {
 
     private final WebhookVerifier verifier;
     private final WebhookDeliveryRepository deliveries;
+    private final ProjectSyncService sync;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public WebhookController(WebhookVerifier verifier, WebhookDeliveryRepository deliveries) {
+    private static final Logger log = LoggerFactory.getLogger(WebhookController.class);
+
+    public WebhookController(WebhookVerifier verifier, WebhookDeliveryRepository deliveries,
+            ProjectSyncService sync) {
         this.verifier = verifier;
         this.deliveries = deliveries;
+        this.sync = sync;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,10 +81,17 @@ public class WebhookController {
                 : "ignored";
         record(deliveryId, event, repo, action);
 
-        // Phase 3: accepted pushes trigger ProjectSyncService.sync(repo, sha).
-        return "accepted".equals(action)
-                ? status(HttpStatus.ACCEPTED, "status", "accepted")
-                : status(HttpStatus.OK, "status", "ignored");
+        if (!"accepted".equals(action)) {
+            return status(HttpStatus.OK, "status", "ignored");
+        }
+        // Sync failures must not fail the delivery (GitHub would retry into a
+        // duplicate); they surface via logs and the admin re-sync endpoint.
+        try {
+            sync.sync(repo, WebhookPushInspector.headSha(payload));
+        } catch (RuntimeException e) {
+            log.warn("Sync failed for {}: {}", repo, e.getMessage());
+        }
+        return status(HttpStatus.ACCEPTED, "status", "accepted");
     }
 
     private void record(String deliveryId, String event, String repo, String action) {

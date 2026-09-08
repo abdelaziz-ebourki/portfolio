@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.abdelaziz.portfolio.sync.ProjectSyncService;
+
 @WebMvcTest(WebhookController.class)
 class WebhookControllerTest {
 
@@ -30,6 +32,9 @@ class WebhookControllerTest {
 
     @MockitoBean
     private WebhookDeliveryRepository deliveries;
+
+    @MockitoBean
+    private ProjectSyncService sync;
 
     @Test
     void rejectsInvalidSignatureWithoutTouchingTheLog() throws Exception {

@@ -20,6 +20,13 @@ server:
 github:
   # Fail-closed: empty secret rejects every webhook delivery.
   webhook-secret: ${GITHUB_WEBHOOK_SECRET:}
+  # Fine-grained PAT with Contents:read on the showcased repos.
+  token: ${GITHUB_TOKEN:}
+  api-base-url: ${GITHUB_API_BASE_URL:https://api.github.com}
+
+admin:
+  # Shared bearer secret for POST /api/admin/sync. Empty disables it.
+  token: ${ADMIN_TOKEN:}
 
 management:
   endpoints:
