@@ -9,7 +9,7 @@ A full-stack portfolio application that showcases selected GitHub projects, kept
 
 ## Overview
 
-Portfolio content is **synced, not curated**. Any GitHub repository becomes portfolio-eligible by containing a `.portfolio.json` file at its root — a manifest describing the project (name, description, stack, features, screenshots, ...).
+Portfolio content is **synced, not curated**. Any GitHub repository becomes portfolio-eligible by containing a `.portfolio.json` file at its root — a manifest describing the project (name, description, stack, features, cover, ...).
 
 - **API** (`api/`) — Spring Boot REST service receiving webhooks and serving project data
 - **UI** (`ui/`) — React single-page application rendering the synced portfolio
@@ -23,7 +23,7 @@ flowchart LR
         R[Project repo<br/>.portfolio.json]
     end
     R -- "push to main" --> W[api/ webhook receiver<br/>HMAC signature verification]
-    W -- fetch .portfolio.json<br/>+ screenshots --> G[GitHub REST API]
+    W -- fetch .portfolio.json<br/>+ cover --> G[GitHub REST API]
     W -- upsert --> DB[(PostgreSQL)]
     DB <-- REST --> UI[ui/ React]
 ```
@@ -38,15 +38,15 @@ flowchart LR
 
 Hybrid approach:
 
-- **Screenshots** — committed to the project repo, referenced by path in `.portfolio.json`
-- **Live demo** *(optional)* — a `demo_url` for deployed projects; rendered inline (iframe) or linked, decided at the UI layer
+- **Cover** — one screenshot committed to the project repo, referenced by path in `.portfolio.json` (`cover`, nullable); shown as the card hero image, click opens a zoom viewer
+- **Live demo** *(optional)* — a `demo_url` opened as an external link, never embedded (most sites block iframing). Demos should be self-sufficient: backends mocked (e.g. MSW in the project's own repo) so links stay alive with no servers to run
 
 ## Tech Stack
 
 | Layer      | Technology                          |
 |------------|-------------------------------------|
-| Backend    | Java 21, Spring Boot 3              |
-| Frontend   | React 18, TypeScript                |
+| Backend    | Java 25, Spring Boot 4              |
+| Frontend   | React 19, TypeScript                |
 | Database   | PostgreSQL 16                       |
 | Integration| GitHub Webhooks                     |
 
@@ -60,17 +60,17 @@ portfolio/
 
 ### Prerequisites
 
-- JDK 21
+- JDK 25
 - Node.js 20+
 - Docker & Docker Compose
 
 ## Roadmap
 
 - [ ] Define the `.portfolio.json` manifest schema
-- [ ] Scaffold `api/` (Spring Boot 3 + PostgreSQL + Flyway)
+- [ ] Scaffold `api/` (Spring Boot 4 + PostgreSQL + Flyway)
 - [ ] Scaffold `ui/` (Vite + React + TypeScript)
 - [ ] Webhook receiver with HMAC signature verification
-- [ ] Fetch `.portfolio.json` & screenshots via GitHub Contents API
+- [ ] Fetch `.portfolio.json` & cover via GitHub Contents API
 - [ ] Project upsert logic
 - [ ] Project list/detail UI with previews
 - [ ] Docker Compose for local development

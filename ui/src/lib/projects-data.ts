@@ -1,14 +1,14 @@
 import { projects, type Project } from "@/lib/persona"
-import type { ProjectDto, ProjectMedia } from "@/lib/project-dto"
+import type { ProjectCover, ProjectDto } from "@/lib/project-dto"
 
-/** Temporary test covers (Lorem Picsum seeds) until the backend serves real
- *  screenshot URLs. Swap these for API URLs — card code stays untouched. */
-function picsumMedia(slug: string, label: string): ProjectMedia[] {
-  return Array.from({ length: 5 }, (_, i) => ({
-    url: `https://picsum.photos/seed/${slug}-${i + 1}/1280/720`,
-    alt: { en: `${label} preview ${i + 1} (test image)` },
+/** Temporary test cover (Lorem Picsum seed) until the backend serves the real
+ *  screenshot URL. Swap this for the API URL — card code stays untouched. */
+function picsumCover(slug: string, label: string): ProjectCover {
+  return {
+    url: `https://picsum.photos/seed/${slug}/1280/720`,
+    alt: { en: `${label} preview (test image)` },
     kind: "image" as const,
-  }))
+  }
 }
 
 /**
@@ -19,7 +19,7 @@ function picsumMedia(slug: string, label: string): ProjectMedia[] {
  */
 export type ProjectView = {
   dto: ProjectDto
-  /** Local presentation fallback until the backend serves media URLs. */
+  /** Local presentation fallback until the backend serves the cover URL. */
   icon: Project["icon"]
   gradient: string
 }
@@ -42,7 +42,7 @@ export function getProjectViews(): ProjectView[] {
           links: project.links,
           highlights: project.highlights,
           metrics: project.metrics,
-          media: picsumMedia(project.slug, project.name.en),
+          cover: picsumCover(project.slug, project.name.en),
           featured: project.featured ?? false,
           displayOrder: index,
         },

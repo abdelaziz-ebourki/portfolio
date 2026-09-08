@@ -46,13 +46,16 @@ export type ProjectRepo = {
   url: string
 }
 
-export type ProjectMediaKind = "image" | "gif" | "video"
+export type ProjectCoverKind = "image" | "gif" | "video"
 
-export type ProjectMedia = {
+/** Single card hero: one screenshot/cover served by the API (assets fetched
+ *  from the project repo), `null` when the project has no cover — the card
+ *  then falls back to its icon gradient. */
+export type ProjectCover = {
   /** Absolute URL served by the API (assets fetched from the project repo). */
   url: string
   alt: LocalizedMap
-  kind: ProjectMediaKind
+  kind: ProjectCoverKind
 }
 
 export type ProjectMetric = {
@@ -103,7 +106,8 @@ export type ProjectDto = {
   links: ProjectLinks
   highlights: LocalizedList
   metrics: ProjectMetric[]
-  media: ProjectMedia[]
+  /** Card hero cover (`null` = no cover, icon-gradient fallback). */
+  cover: ProjectCover | null
   featured: boolean
   displayOrder: number
 }

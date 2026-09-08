@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { getProjectViews, type ProjectView } from "@/lib/projects-data"
 import {
   isSafeUrl,
   resolveLocalized,
   resolveLocalizedList,
   type ProjectDto,
+  type ProjectCover,
   type ProjectKind,
-  type ProjectMedia,
   type ProjectPeriod,
   type ProjectStatus,
 } from "@/lib/project-dto"
@@ -23,14 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  type CarouselApi,
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 import {
   Dialog,
   DialogContent,
@@ -130,64 +122,44 @@ function roleLabel(dto: ProjectDto, t: (value: Localized) => string): string {
   return dto.role === "team" && dto.teamSize ? `${base} · ${dto.teamSize}` : base
 }
 
-function carouselDir(lang: Lang): "rtl" | "ltr" {
-  return lang === "ar" ? "rtl" : "ltr"
-}
-
-function useCarouselIndex(api: CarouselApi | undefined): number {
-  const [index, setIndex] = useState(0)
-
-  useEffect(() => {
-    if (!api) return
-    setIndex(api.selectedScrollSnap())
-    const onSelect = () => setIndex(api.selectedScrollSnap())
-    api.on("select", onSelect)
-    api.on("reInit", onSelect)
-    return () => {
-      api.off("select", onSelect)
-      api.off("reInit", onSelect)
-    }
-  }, [api])
-
-  return index
-}
-
-/** Drops failed/unsafe media so broken slides never render. The surviving
- *  list feeds both the card carousel and the lightbox, keeping dots,
- *  counters and open-index consistent. */
-function useVisibleMedia(dto: ProjectDto): [ProjectMedia[], (url: string) => void] {
-  const [failed, setFailed] = useState<ReadonlySet<string>>(new Set())
+/** Null/unsafe/failed covers fall back to the icon gradient so a broken
+ *  hero image never renders. The surviving cover feeds both the card hero
+ *  and the lightbox. */
+function useVisibleCover(dto: ProjectDto): [ProjectCover | null, (url: string) => void] {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
 
   const markFailed = useCallback((url: string) => {
-    setFailed((prev) => (prev.has(url) ? prev : new Set(prev).add(url)))
+    setFailedUrl((prev) => (prev === url ? prev : url))
   }, [])
 
   const visible = useMemo(
     () =>
-      dto.media.filter((item) => isSafeUrl(item.url) && !failed.has(item.url)),
-    [dto.media, failed]
+      dto.cover !== null && isSafeUrl(dto.cover.url) && failedUrl !== dto.cover.url
+        ? dto.cover
+        : null,
+    [dto.cover, failedUrl]
   )
   return [visible, markFailed]
 }
 
-function SlideDots({ api, count }: { api: CarouselApi | undefined; count: number }) {
-  const current = useCarouselIndex(api)
-  if (count <= 1) return null
+function CardHero({
+  item,
+  label,
+  lang,
+  onOpen,
+  onFail,
+}: {
+  item: ProjectCover
+  /** Fully-composed accessible label (name + action), built by the caller. */
+  label: string
+  lang: Lang
+  onOpen: () => void
+  onFail: (url: string) => void
+}) {
   return (
-    <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5">
-      {Array.from({ length: count }, (_, i) => (
-        <button
-          key={i}
-          type="button"
-          onClick={() => api?.scrollTo(i)}
-          aria-label={`${i + 1} / ${count}`}
-          className={cn(
-            "size-1.5 rounded-full transition-colors",
-            i === current ? "bg-primary-foreground" : "bg-primary-foreground/40 hover:bg-primary-foreground/70"
-          )}
-        />
-      ))}
-    </div>
+    <button type="button" onClick={onOpen} aria-label={label} className="block w-full cursor-zoom-in">
+      <SlideImage item={item} lang={lang} onError={onFail} />
+    </button>
   )
 }
 
@@ -197,7 +169,7 @@ function SlideImage({
   className = "aspect-video w-full object-cover",
   onError,
 }: {
-  item: ProjectMedia
+  item: ProjectCover
   lang: Lang
   className?: string
   onError?: (url: string) => void
@@ -242,81 +214,26 @@ function CoverFallback({ view }: { view: ProjectView }) {
   )
 }
 
-function CardCarousel({
-  media,
-  onOpen,
+function Lightbox({
+  dto,
+  item,
+  open,
+  onClose,
   onFail,
 }: {
-  media: ProjectMedia[]
-  onOpen: (index: number) => void
+  dto: ProjectDto
+  item: ProjectCover
+  open: boolean
+  onClose: () => void
   onFail: (url: string) => void
 }) {
   const { lang, t } = useI18n()
-  const [api, setApi] = useState<CarouselApi>()
-  const current = useCarouselIndex(api)
-  const dir = carouselDir(lang)
-  const opts = useMemo(() => ({ loop: true, direction: dir }), [dir])
-
-  return (
-    <div className="group/carousel relative">
-      <Carousel setApi={setApi} opts={opts} dir={dir}>
-        <CarouselContent className="ml-0">
-          {media.map((item, i) => (
-            <CarouselItem key={`${item.url}-${i}`} className="pl-0">
-              <button
-                type="button"
-                onClick={() => onOpen(i)}
-                className="block w-full cursor-zoom-in"
-                aria-label={`${i + 1} / ${media.length}`}
-              >
-                <SlideImage item={item} lang={lang} onError={onFail} />
-              </button>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious
-          prevLabel={t(ui.projects.prevSlide)}
-          className="left-2 top-1/2 -translate-y-1/2 transition-opacity group-focus-within/carousel:opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100 rtl:rotate-180"
-        />
-        <CarouselNext
-          nextLabel={t(ui.projects.nextSlide)}
-          className="right-2 top-1/2 -translate-y-1/2 transition-opacity group-focus-within/carousel:opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100 rtl:rotate-180"
-        />
-      </Carousel>
-      <span className="absolute end-2 top-2 rounded-md bg-background/70 px-1.5 py-0.5 text-xs text-muted-foreground">
-        {current + 1} / {media.length}
-      </span>
-      <SlideDots api={api} count={media.length} />
-    </div>
-  )
-}
-
-function Lightbox({
-  dto,
-  media,
-  index,
-  onClose,
-}: {
-  dto: ProjectDto
-  media: ProjectMedia[]
-  index: number | null
-  onClose: () => void
-}) {
-  const { lang, t } = useI18n()
-  const [api, setApi] = useState<CarouselApi>()
-  const current = useCarouselIndex(api)
-  const dir = carouselDir(lang)
-  const startIndex = index === null ? 0 : Math.min(index, media.length - 1)
-  const opts = useMemo(
-    () => ({ loop: true, direction: dir, startIndex }),
-    [dir, startIndex]
-  )
 
   return (
     <Dialog
-      open={index !== null}
-      onOpenChange={(open) => {
-        if (!open) onClose()
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose()
       }}
     >
       <DialogContent
@@ -329,32 +246,12 @@ function Lightbox({
             {resolveLocalized(dto.tagline, lang)}
           </DialogDescription>
         </DialogHeader>
-        {index !== null && (
-          <Carousel setApi={setApi} opts={opts} dir={dir}>
-            <CarouselContent className="ml-0 items-center">
-              {media.map((item, i) => (
-                <CarouselItem key={`${item.url}-${i}`} className="pl-0">
-                  <SlideImage
-                    item={item}
-                    lang={lang}
-                    className="max-h-[80dvh] w-full rounded-xl object-contain"
-                  />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious
-              prevLabel={t(ui.projects.prevSlide)}
-              className="left-2 top-1/2 -translate-y-1/2 rtl:rotate-180"
-            />
-            <CarouselNext
-              nextLabel={t(ui.projects.nextSlide)}
-              className="right-2 top-1/2 -translate-y-1/2 rtl:rotate-180"
-            />
-          </Carousel>
-        )}
-        <p className="text-center text-sm text-muted-foreground">
-          {index !== null ? current + 1 : 1} / {media.length}
-        </p>
+        <SlideImage
+          item={item}
+          lang={lang}
+          onError={onFail}
+          className="max-h-[80dvh] w-full rounded-xl object-contain"
+        />
       </DialogContent>
     </Dialog>
   )
@@ -461,18 +358,24 @@ function ExtraLinks({ dto }: { dto: ProjectDto }) {
 }
 
 function ProjectCard({ view, labels }: { view: ProjectView; labels: Labels }) {
-  const { lang } = useI18n()
+  const { lang, t } = useI18n()
   const { dto } = view
   const highlights = resolveLocalizedList(dto.highlights, lang).slice(0, 3)
-  const [visibleMedia, markFailed] = useVisibleMedia(dto)
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [visibleCover, markFailed] = useVisibleCover(dto)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   return (
     <>
       <Card className="group flex h-full flex-col overflow-hidden bg-card/60 pt-0 transition-all hover:border-foreground/25 hover:shadow-lg">
         <div className="relative border-b border-border">
-          {visibleMedia.length > 0 ? (
-            <CardCarousel media={visibleMedia} onOpen={setLightboxIndex} onFail={markFailed} />
+          {visibleCover !== null ? (
+            <CardHero
+              item={visibleCover}
+              label={`${resolveLocalized(dto.name, lang)} — ${t(ui.projects.openViewer)}`}
+              lang={lang}
+              onOpen={() => setLightboxOpen(true)}
+              onFail={markFailed}
+            />
           ) : (
             <CoverFallback view={view} />
           )}
@@ -512,12 +415,13 @@ function ProjectCard({ view, labels }: { view: ProjectView; labels: Labels }) {
         </CardFooter>
       </Card>
 
-      {visibleMedia.length > 0 && (
+      {visibleCover !== null && (
         <Lightbox
           dto={dto}
-          media={visibleMedia}
-          index={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
+          item={visibleCover}
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          onFail={markFailed}
         />
       )}
     </>
