@@ -3,7 +3,7 @@
 ## Project
 
 Portfolio – full-stack showcase of GitHub projects via `.portfolio.json` webhook sync.
-- `api/` (planned) – Spring Boot 3 + Java 21 + PostgreSQL + webhook HMAC
+- `api/` – Spring Boot 4 + Java 25 + PostgreSQL + webhook HMAC (Maven, Flyway)
 - `ui/` – React 19 + TypeScript 6 + Vite 8 + Tailwind 4 (only JS/TS package today)
 
 ## Operational Guidelines for Agents
