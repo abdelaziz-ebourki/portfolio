@@ -17,6 +17,10 @@ server:
   servlet:
     context-path: /api
 
+github:
+  # Fail-closed: empty secret rejects every webhook delivery.
+  webhook-secret: ${GITHUB_WEBHOOK_SECRET:}
+
 management:
   endpoints:
     web:
