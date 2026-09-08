@@ -66,12 +66,13 @@ portfolio/
 
 ## Roadmap
 
-- [ ] Define the `.portfolio.json` manifest schema
-- [ ] Scaffold `api/` (Spring Boot 4 + PostgreSQL + Flyway)
-- [ ] Scaffold `ui/` (Vite + React + TypeScript)
-- [ ] Webhook receiver with HMAC signature verification
-- [ ] Fetch `.portfolio.json` & cover via GitHub Contents API
-- [ ] Project upsert logic
-- [ ] Project list/detail UI with previews
-- [ ] Docker Compose for local development
+- [x] Define the `.portfolio.json` manifest schema
+- [x] Scaffold `api/` (Spring Boot 4 + PostgreSQL + Flyway)
+- [x] Scaffold `ui/` (Vite + React + TypeScript)
+- [x] Webhook receiver with HMAC signature verification
+- [x] Fetch `.portfolio.json` & cover via GitHub Contents API
+- [x] Project upsert logic
+- [x] Project list UI with previews (`GET /api/projects` serves `ProjectDto`)
+- [ ] Wire UI to live API (persona fallback today)
+- [x] Docker Compose for local development
 - [ ] CI pipeline

@@ -35,6 +35,7 @@ public class Project {
     private String slug;
 
     @Column(columnDefinition = "jsonb", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
     private String manifest;
 
     @Column(name = "synced_sha", columnDefinition = "char(40)")
