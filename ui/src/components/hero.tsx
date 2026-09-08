@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { persona } from "@/lib/persona";
 import { ui } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
@@ -70,7 +70,7 @@ function useIsVisible<T extends HTMLElement>(
 
 // fallow-ignore-next-line complexity -- hero composes 6 theme hooks + FaultyTerminal, intentional orchestration
 export function Hero() {
-	const { t } = useI18n();
+	const { t, lang } = useI18n();
 	const { theme } = useTheme();
 	const isLight = theme === "light";
 	const prefersReduced = usePrefersReducedMotion();
@@ -85,6 +85,16 @@ export function Hero() {
 		introPlayedRef.current = true;
 	}, []);
 	const introDelay = (ms: number) => (introPlayedRef.current ? 0 : ms);
+
+	// Single typing cursor: it rides the actively-typing line (whoami -> name
+	// -> role) and rests on the last one. Lines remount per language, so the
+	// cursor resets alongside them.
+	const [activeLine, setActiveLine] = useState(0);
+	useEffect(() => {
+		setActiveLine(0);
+	}, [lang]);
+	const advanceToName = useCallback(() => setActiveLine(1), []);
+	const advanceToRole = useCallback(() => setActiveLine(2), []);
 
 	const faultyTerminalProps = isLight
 		? {
@@ -165,7 +175,8 @@ export function Hero() {
 								typingSpeed={68}
 								initialDelay={introDelay(700)}
 								loop={false}
-								showCursor
+								showCursor={activeLine === 0}
+								onComplete={advanceToName}
 								cursorCharacter="█"
 								cursorClassName="text-primary"
 								cursorBlinkDuration={0.55}
@@ -185,19 +196,26 @@ export function Hero() {
 								</span>
 							</span>
 						) : (
-							<TextType
-								key={persona.name}
-								text={persona.name}
-								as="span"
-								className="font-bold tracking-tight crt-glow"
-								typingSpeed={62}
-								initialDelay={introDelay(1700)}
-								loop={false}
-								showCursor
-								cursorCharacter="█"
-								cursorClassName="text-primary"
-								cursorBlinkDuration={0.55}
-							/>
+							// Mounts only when its turn comes: typing is gated on the
+							// previous line's completion, so lines can never overlap
+							// (fixed delays + i18n remounts used to restart the timer
+							// mid-sequence). Delay 0 — the mount itself is the cue.
+							activeLine >= 1 && (
+								<TextType
+									key={persona.name}
+									text={persona.name}
+									as="span"
+									className="font-bold tracking-tight crt-glow"
+									typingSpeed={62}
+									initialDelay={0}
+									loop={false}
+									showCursor={activeLine === 1}
+									onComplete={advanceToRole}
+									cursorCharacter="█"
+									cursorClassName="text-primary"
+									cursorBlinkDuration={0.55}
+								/>
+							)
 						)}
 					</h1>
 
@@ -212,19 +230,21 @@ export function Hero() {
 							</>
 						) : (
 							<>
-								<TextType
-									key={t(persona.role)}
-									text={t(persona.role)}
-									as="span"
-									className="font-medium text-foreground"
-									typingSpeed={38}
-									initialDelay={introDelay(3400)}
-									loop={false}
-									showCursor
-									cursorCharacter="█"
-									cursorClassName="text-primary"
-									cursorBlinkDuration={0.55}
-								/>
+								{activeLine >= 2 && (
+									<TextType
+										key={t(persona.role)}
+										text={t(persona.role)}
+										as="span"
+										className="font-medium text-foreground"
+										typingSpeed={38}
+										initialDelay={0}
+										loop={false}
+										showCursor={activeLine === 2}
+										cursorCharacter="█"
+										cursorClassName="text-primary"
+										cursorBlinkDuration={0.55}
+									/>
+								)}
 								<span className="ms-1 inline text-foreground/85">
 									{" — "}
 									{t(persona.tagline)}

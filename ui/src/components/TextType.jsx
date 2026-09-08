@@ -19,6 +19,7 @@ const TextType = ({
   textColors = [],
   variableSpeed,
   onSentenceComplete,
+  onComplete,
   startOnVisible = false,
   reverseMode = false,
   ...props
@@ -29,6 +30,8 @@ const TextType = ({
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(!startOnVisible);
   const containerRef = useRef(null);
+  // Guards onComplete so remounts/re-runs can't fire it twice per text.
+  const completedRef = useRef(false);
 
   const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
 
@@ -100,7 +103,13 @@ const TextType = ({
             variableSpeed ? getRandomSpeed() : typingSpeed
           );
         } else if (textArray.length >= 1) {
-          if (!loop && currentTextIndex === textArray.length - 1) return;
+          if (!loop && currentTextIndex === textArray.length - 1) {
+            if (!completedRef.current) {
+              completedRef.current = true;
+              onComplete?.();
+            }
+            return;
+          }
           timeout = setTimeout(() => {
             setIsDeleting(true);
           }, pauseDuration);
@@ -130,7 +139,8 @@ const TextType = ({
     isVisible,
     reverseMode,
     variableSpeed,
-    onSentenceComplete
+    onSentenceComplete,
+    onComplete
   ]);
 
   const shouldHideCursor =
