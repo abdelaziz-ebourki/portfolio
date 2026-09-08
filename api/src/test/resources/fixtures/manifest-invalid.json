@@ -1,0 +1,17 @@
+{
+  "name": { "en": "Missing slug and broken fields" },
+  "tagline": { "en": "Slug is required." },
+  "status": "launched",
+  "role": "solo",
+  "kind": "personal",
+  "period": { "start": "2024-13" },
+  "stack": [],
+  "repos": [{ "label": "monorepo", "url": "not-a-url" }],
+  "links": {},
+  "highlights": { "fr": ["Pas d'anglais"] },
+  "cover": {
+    "path": "https://evil.example.com/cover.png",
+    "alt": { "en": "Absolute URLs are not repo-relative" },
+    "kind": "image"
+  }
+}

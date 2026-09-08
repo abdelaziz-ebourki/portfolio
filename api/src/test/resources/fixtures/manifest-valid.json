@@ -1,0 +1,21 @@
+{
+  "slug": "taskboard",
+  "name": { "en": "Taskboard", "fr": "Tableau de tâches", "ar": "لوحة المهام" },
+  "tagline": { "en": "Kanban board with realtime collaboration." },
+  "status": "shipped",
+  "role": "solo",
+  "kind": "personal",
+  "period": { "start": "2024-02", "end": "2024-06" },
+  "stack": ["Java", "Spring Boot", "React"],
+  "repos": [{ "label": "monorepo", "url": "https://github.com/example/taskboard" }],
+  "links": { "demo": "https://taskboard.example.com" },
+  "highlights": { "en": ["Drag-and-drop board", "Realtime sync"] },
+  "metrics": [{ "label": { "en": "Uptime" }, "value": "99.9%" }],
+  "cover": {
+    "path": "docs/cover.png",
+    "alt": { "en": "Taskboard kanban view" },
+    "kind": "image"
+  },
+  "featured": true,
+  "displayOrder": 0
+}
