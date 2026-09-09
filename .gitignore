@@ -7,22 +7,40 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node / frontend
 node_modules
 dist
 dist-ssr
 *.local
+
+# Java / Maven (any module: api/, future services)
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/wrapper/maven-wrapper.jar
+
+# Local tooling state
 .fallow/
-.agents/
-ui/.agents/
+**/.agents/
 skills-lock.json
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
+*.iws
+*.iml
+*.ipr
+.classpath
+.factorypath
+.project
+.settings
+.sts4-cache
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
