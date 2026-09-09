@@ -46,7 +46,7 @@ export function Contact() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field>
                     <FieldLabel htmlFor="name">{t(ui.contact.nameLabel)}</FieldLabel>
-                    <Input id="name" name="name" required placeholder={t(ui.contact.namePlaceholder)} aria-invalid={false} />
+                    <Input id="name" name="name" required placeholder={t(ui.contact.namePlaceholder)} />
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="email">{t(ui.contact.emailLabel)}</FieldLabel>
@@ -56,7 +56,6 @@ export function Contact() {
                       type="email"
                       required
                       placeholder={t(ui.contact.emailPlaceholder)}
-                      aria-invalid={false}
                     />
                   </Field>
                 </div>
@@ -69,7 +68,6 @@ export function Contact() {
                     rows={5}
                     placeholder={t(ui.contact.messagePlaceholder)}
                     className="resize-none"
-                    aria-invalid={false}
                   />
                 </Field>
                 <Button type="submit" disabled={state === "sending"} className="w-fit">

@@ -8,8 +8,7 @@ import {
   type ReactNode,
 } from "react"
 
-// fallow-ignore-next-line unused-type -- Theme re-exported for external consumers
-export type Theme = "light" | "dark"
+type Theme = "light" | "dark"
 
 const STORAGE_KEY = "portfolio-theme"
 

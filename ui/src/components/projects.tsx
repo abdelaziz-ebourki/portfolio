@@ -142,27 +142,6 @@ function useVisibleCover(dto: ProjectDto): [ProjectCover | null, (url: string) =
   return [visible, markFailed]
 }
 
-function CardHero({
-  item,
-  label,
-  lang,
-  onOpen,
-  onFail,
-}: {
-  item: ProjectCover
-  /** Fully-composed accessible label (name + action), built by the caller. */
-  label: string
-  lang: Lang
-  onOpen: () => void
-  onFail: (url: string) => void
-}) {
-  return (
-    <button type="button" onClick={onOpen} aria-label={label} className="block w-full cursor-zoom-in">
-      <SlideImage item={item} lang={lang} onError={onFail} />
-    </button>
-  )
-}
-
 function SlideImage({
   item,
   lang,
@@ -369,13 +348,14 @@ function ProjectCard({ view, labels }: { view: ProjectView; labels: Labels }) {
       <Card className="group flex h-full flex-col overflow-hidden bg-card/60 pt-0 transition-all hover:border-foreground/25 hover:shadow-lg">
         <div className="relative border-b border-border">
           {visibleCover !== null ? (
-            <CardHero
-              item={visibleCover}
-              label={`${resolveLocalized(dto.name, lang)} — ${t(ui.projects.openViewer)}`}
-              lang={lang}
-              onOpen={() => setLightboxOpen(true)}
-              onFail={markFailed}
-            />
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              aria-label={`${resolveLocalized(dto.name, lang)} — ${t(ui.projects.openViewer)}`}
+              className="block w-full cursor-zoom-in"
+            >
+              <SlideImage item={visibleCover} lang={lang} onError={markFailed} />
+            </button>
           ) : (
             <CoverFallback view={view} />
           )}
@@ -439,7 +419,7 @@ function FilterChips<T extends string>({
   options: readonly T[]
   value: T | "all"
   onChange: (next: T | "all") => void
-  getLabel: (option: T | "all") => string
+  getLabel: (option: T) => string
 }) {
   const { t } = useI18n()
   return (
@@ -451,7 +431,7 @@ function FilterChips<T extends string>({
           size="sm"
           onClick={() => onChange(option)}
         >
-          {option === "all" ? t(ui.projects.all) : getLabel(option)}
+          {option === "all" ? t(ui.projects.all) : getLabel(option as T)}
         </Button>
       ))}
     </div>
@@ -492,7 +472,7 @@ export function Projects() {
             options={ALL_KINDS}
             value={kindFilter}
             onChange={setKindFilter}
-            getLabel={(kind) => (kind === "all" ? "" : labels.kind[kind])}
+            getLabel={(kind) => labels.kind[kind]}
           />
         </div>
         <div className="flex flex-wrap items-center gap-3">

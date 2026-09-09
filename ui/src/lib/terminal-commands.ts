@@ -12,8 +12,4 @@ export const CHEAT_COMMANDS = [
   "lang",
 ] as const
 
-export const TAB_COMMANDS = [
-  ...CHEAT_COMMANDS.map((c) => c.split(" ")[0]),
-  "rm",
-  "cat",
-] as const
+export const TAB_COMMANDS = [...CHEAT_COMMANDS, "rm", "cat"] as const

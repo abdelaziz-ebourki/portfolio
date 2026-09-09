@@ -11,10 +11,9 @@ export function TerminalSidePanel({ onRun }: { onRun: (cmd: string) => void }) {
 			<div className="flex flex-1 flex-col">
 				<div className="mt-3 flex flex-1 flex-col gap-1">
 					{CHEAT_COMMANDS.map((cmd) => {
-						const key = cmd.split(" ")[0];
 						const hint =
 							ui.terminal.side.commands[
-								key as keyof typeof ui.terminal.side.commands
+								cmd as keyof typeof ui.terminal.side.commands
 							];
 						return (
 							<button
