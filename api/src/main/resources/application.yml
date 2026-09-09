@@ -28,6 +28,10 @@ admin:
   # Shared bearer secret for POST /api/admin/sync. Empty disables it.
   token: ${ADMIN_TOKEN:}
 
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
 management:
   endpoints:
     web:
