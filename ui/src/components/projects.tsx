@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
-import { getProjectViews, type ProjectView } from "@/lib/projects-data"
+import { type ProjectView } from "@/lib/projects-data"
+import { useProjectViews } from "@/lib/use-project-views"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   isSafeUrl,
   resolveLocalized,
@@ -438,10 +440,37 @@ function FilterChips<T extends string>({
   )
 }
 
+function ProjectCardSkeleton() {
+  return (
+    <Card className="flex h-full flex-col overflow-hidden pt-0">
+      <Skeleton className="aspect-video w-full rounded-none" />
+      <CardHeader className="gap-2">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-3 w-2/3" />
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col gap-3 pb-4">
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-5/6" />
+        <div className="mt-auto flex gap-1.5 pt-2">
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-14 rounded-full" />
+          <Skeleton className="h-5 w-20 rounded-full" />
+        </div>
+      </CardContent>
+      <Separator />
+      <CardFooter className="gap-2 py-3!">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-20" />
+      </CardFooter>
+    </Card>
+  )
+}
+
 export function Projects() {
   const { t } = useI18n()
   const labels = useProjectLabels(t)
-  const views = useMemo(() => getProjectViews(), [])
+  const { views, loading } = useProjectViews()
   const [kindFilter, setKindFilter] = useState<ProjectKind | "all">("all")
   const [stackFilter, setStackFilter] = useState<string>("all")
 
@@ -488,7 +517,13 @@ export function Projects() {
         </div>
       </div>
 
-      {visible.length > 0 ? (
+      {loading ? (
+        <div className="grid gap-5 sm:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <ProjectCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : visible.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2">
           {visible.map((view) => (
             <ProjectCard key={view.dto.slug} view={view} labels={labels} />
