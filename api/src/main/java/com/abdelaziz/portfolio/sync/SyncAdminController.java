@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.abdelaziz.portfolio.github.GitHubClientException;
 import com.abdelaziz.portfolio.github.GitHubFileNotFoundException;
 import com.abdelaziz.portfolio.manifest.InvalidManifestException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Manual backfill/recovery: {@code POST /api/admin/sync {"repo":
@@ -32,11 +33,13 @@ public class SyncAdminController {
     private static final Pattern REPO = Pattern.compile("^[\\w.-]+/[\\w.-]+$");
 
     private final ProjectSyncService sync;
+    private final ObjectMapper mapper;
     private final String adminToken;
 
     public SyncAdminController(
-            ProjectSyncService sync, @Value("${admin.token:}") String adminToken) {
+            ProjectSyncService sync, ObjectMapper mapper, @Value("${admin.token:}") String adminToken) {
         this.sync = sync;
+        this.mapper = mapper;
         this.adminToken = adminToken == null ? "" : adminToken;
     }
 
@@ -66,7 +69,7 @@ public class SyncAdminController {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("slug", project.getSlug());
             body.put("syncedSha", project.getSyncedSha().orElse(null));
-            body.put("hasCover", project.getManifest().contains("\"cover\""));
+            body.put("hasCover", hasCover(project.getManifest()));
             return ResponseEntity.ok(body);
         } catch (InvalidManifestException e) {
             Map<String, Object> body = new LinkedHashMap<>();
@@ -76,7 +79,16 @@ public class SyncAdminController {
         } catch (GitHubFileNotFoundException e) {
             return error(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (GitHubClientException e) {
-            return error(HttpStatus.BAD_GATEWAY, e.getMessage());
+            HttpStatus mapped = HttpStatus.resolve(e.status());
+            return error(mapped != null ? mapped : HttpStatus.BAD_GATEWAY, e.getMessage());
+        }
+    }
+
+    private boolean hasCover(String storedManifest) {
+        try {
+            return mapper.readTree(storedManifest).has("cover");
+        } catch (Exception e) {
+            return false;
         }
     }
 

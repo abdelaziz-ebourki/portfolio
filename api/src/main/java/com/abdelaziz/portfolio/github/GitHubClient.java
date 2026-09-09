@@ -47,7 +47,7 @@ public class GitHubClient {
     public record TextFile(String content, String sha) {
     }
 
-    public record BinaryFile(byte[] bytes, String contentType, String sha) {
+    public record BinaryFile(byte[] bytes, String contentType) {
     }
 
     public TextFile fetchManifest(String repo, String ref) {
@@ -59,11 +59,7 @@ public class GitHubClient {
     public BinaryFile fetchCover(String repo, String path, String ref) {
         JsonNode meta = getJson(contentsUrl(repo, path, ref), repo, path);
         byte[] bytes = decodeBytes(meta, repo, path, MAX_COVER_BYTES);
-        String contentType = meta.path("contentType").asText(null);
-        if (contentType == null) {
-            contentType = guessContentType(path);
-        }
-        return new BinaryFile(bytes, contentType, meta.path("sha").asText(null));
+        return new BinaryFile(bytes, guessContentType(path));
     }
 
     private JsonNode getJson(String url, String repo, String path) {

@@ -48,28 +48,32 @@ public class ManifestValidator {
      * @throws InvalidManifestException when the payload is not JSON at all.
      */
     public Set<String> validate(String manifestJson) {
-        final JsonNode node;
-        try {
-            node = mapper.readTree(manifestJson);
-        } catch (IOException e) {
-            throw new InvalidManifestException("Manifest is not valid JSON: " + e.getMessage());
-        }
-        return schema.validate(node)
-                .stream()
-                .map(ValidationMessage::getMessage)
-                .collect(Collectors.toCollection(TreeSet::new));
+        return violationsFor(parseOrThrow(manifestJson));
     }
 
     /** Returns the parsed manifest, or throws with the violations attached. */
     public JsonNode requireValid(String manifestJson) {
-        Set<String> violations = validate(manifestJson);
+        JsonNode node = parseOrThrow(manifestJson);
+        Set<String> violations = violationsFor(node);
         if (!violations.isEmpty()) {
-            throw new InvalidManifestException("Manifest violates schema: " + String.join("; ", violations));
+            throw new InvalidManifestException(
+                    "Manifest violates schema: " + String.join("; ", violations), violations);
         }
+        return node;
+    }
+
+    private JsonNode parseOrThrow(String manifestJson) {
         try {
             return mapper.readTree(manifestJson);
         } catch (IOException e) {
             throw new InvalidManifestException("Manifest is not valid JSON: " + e.getMessage());
         }
+    }
+
+    private Set<String> violationsFor(JsonNode node) {
+        return schema.validate(node)
+                .stream()
+                .map(ValidationMessage::getMessage)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 }

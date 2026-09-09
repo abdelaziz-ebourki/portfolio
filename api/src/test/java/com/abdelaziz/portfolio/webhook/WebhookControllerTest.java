@@ -14,12 +14,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.abdelaziz.portfolio.config.JacksonConfig;
 import com.abdelaziz.portfolio.sync.ProjectSyncService;
 
 @WebMvcTest(WebhookController.class)
+@Import(JacksonConfig.class)
 class WebhookControllerTest {
 
     private static final String SIGNATURE = "sha256=abc123";

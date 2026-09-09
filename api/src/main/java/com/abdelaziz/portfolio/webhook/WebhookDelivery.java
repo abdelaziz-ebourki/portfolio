@@ -39,24 +39,4 @@ public class WebhookDelivery {
             receivedAt = Instant.now();
         }
     }
-
-    public String getDeliveryId() {
-        return deliveryId;
-    }
-
-    public String getEvent() {
-        return event;
-    }
-
-    public String getRepoFullName() {
-        return repoFullName;
-    }
-
-    public String getActionTaken() {
-        return actionTaken;
-    }
-
-    public Instant getReceivedAt() {
-        return receivedAt;
-    }
 }

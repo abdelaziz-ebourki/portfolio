@@ -37,15 +37,19 @@ public class WebhookController {
     private final WebhookVerifier verifier;
     private final WebhookDeliveryRepository deliveries;
     private final ProjectSyncService sync;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     private static final Logger log = LoggerFactory.getLogger(WebhookController.class);
 
-    public WebhookController(WebhookVerifier verifier, WebhookDeliveryRepository deliveries,
-            ProjectSyncService sync) {
+    public WebhookController(
+            WebhookVerifier verifier,
+            WebhookDeliveryRepository deliveries,
+            ProjectSyncService sync,
+            ObjectMapper mapper) {
         this.verifier = verifier;
         this.deliveries = deliveries;
         this.sync = sync;
+        this.mapper = mapper;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

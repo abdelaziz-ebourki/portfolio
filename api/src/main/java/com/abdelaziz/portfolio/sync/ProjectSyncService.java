@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.abdelaziz.portfolio.github.GitHubClient;
 import com.abdelaziz.portfolio.manifest.ManifestValidator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -26,17 +25,12 @@ public class ProjectSyncService {
     private final GitHubClient github;
     private final ManifestValidator validator;
     private final ProjectRepository projects;
-    private final ObjectMapper mapper;
 
     public ProjectSyncService(
-            GitHubClient github,
-            ManifestValidator validator,
-            ProjectRepository projects,
-            ObjectMapper mapper) {
+            GitHubClient github, ManifestValidator validator, ProjectRepository projects) {
         this.github = github;
         this.validator = validator;
         this.projects = projects;
-        this.mapper = mapper;
     }
 
     @Transactional
@@ -78,19 +72,16 @@ public class ProjectSyncService {
         GitHubClient.BinaryFile asset = github.fetchCover(repoFullName, path, ref);
         cover.put("data", Base64.getEncoder().encodeToString(asset.bytes()));
         cover.put("contentType", asset.contentType());
-        cover.put("kind", coerceKind(cover.path("kind").asText("image"), asset.contentType()));
+        cover.put("kind", coerceKind(asset.contentType()));
     }
 
-    static String coerceKind(String declared, String contentType) {
+    static String coerceKind(String contentType) {
         if ("image/gif".equalsIgnoreCase(contentType)) {
             return "gif";
         }
         if (contentType != null && contentType.toLowerCase().startsWith("video/")) {
             return "video";
         }
-        if (contentType != null && contentType.toLowerCase().startsWith("image/")) {
-            return "image";
-        }
-        return declared;
+        return "image";
     }
 }

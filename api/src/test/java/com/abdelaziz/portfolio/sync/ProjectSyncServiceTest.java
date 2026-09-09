@@ -7,9 +7,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.abdelaziz.portfolio.Fixtures;
 import com.abdelaziz.portfolio.github.GitHubClient;
 import com.abdelaziz.portfolio.manifest.InvalidManifestException;
 import com.abdelaziz.portfolio.manifest.ManifestValidator;
@@ -38,15 +36,15 @@ class ProjectSyncServiceTest {
 
     @org.junit.jupiter.api.BeforeEach
     void wireService() {
-        sync = new ProjectSyncService(github, validator, projects, new ObjectMapper());
+        sync = new ProjectSyncService(github, validator, projects);
     }
 
     @Test
     void importsNewProjectWithCoverBytesEnriched() {
         when(github.fetchManifest("example/taskboard", "main"))
-                .thenReturn(new GitHubClient.TextFile(fixture("manifest-valid.json"), "blob1"));
+                .thenReturn(new GitHubClient.TextFile(Fixtures.read("manifest-valid.json"), "blob1"));
         when(github.fetchCover("example/taskboard", "docs/cover.png", "main"))
-                .thenReturn(new GitHubClient.BinaryFile(new byte[] { 1, 2, 3 }, "image/png", "blobcover"));
+                .thenReturn(new GitHubClient.BinaryFile(new byte[] { 1, 2, 3 }, "image/png"));
         when(projects.findByRepoFullName("example/taskboard")).thenReturn(Optional.empty());
         when(projects.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -63,10 +61,10 @@ class ProjectSyncServiceTest {
     @Test
     void coercesCoverKindToRealContentType() {
         when(github.fetchManifest("example/taskboard", null))
-                .thenReturn(new GitHubClient.TextFile(fixture("manifest-valid.json"), "blob2"));
+                .thenReturn(new GitHubClient.TextFile(Fixtures.read("manifest-valid.json"), "blob2"));
         // Manifest declares kind image for docs/cover.png; bytes are really a video.
         when(github.fetchCover("example/taskboard", "docs/cover.png", null))
-                .thenReturn(new GitHubClient.BinaryFile(new byte[] { 0 }, "video/mp4", "blobcover"));
+                .thenReturn(new GitHubClient.BinaryFile(new byte[] { 0 }, "video/mp4"));
         when(projects.findByRepoFullName("example/taskboard")).thenReturn(Optional.empty());
         when(projects.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -79,9 +77,9 @@ class ProjectSyncServiceTest {
     void skipsWriteWhenBlobShaUnchanged() {
         Project stored = new Project("example/taskboard", "taskboard", "{}", "blob1");
         when(github.fetchManifest("example/taskboard", "abc123"))
-                .thenReturn(new GitHubClient.TextFile(fixture("manifest-valid.json"), "blob1"));
+                .thenReturn(new GitHubClient.TextFile(Fixtures.read("manifest-valid.json"), "blob1"));
         when(github.fetchCover("example/taskboard", "docs/cover.png", "abc123"))
-                .thenReturn(new GitHubClient.BinaryFile(new byte[] { 1 }, "image/png", "blobcover"));
+                .thenReturn(new GitHubClient.BinaryFile(new byte[] { 1 }, "image/png"));
         when(projects.findByRepoFullName("example/taskboard")).thenReturn(Optional.of(stored));
 
         assertThat(sync.sync("example/taskboard", "abc123")).isSameAs(stored);
@@ -99,21 +97,10 @@ class ProjectSyncServiceTest {
     }
 
     @Test
-    void coerceKindFallsBackToDeclaredForUnknownTypes() {
-        assertThat(ProjectSyncService.coerceKind("image", "image/gif")).isEqualTo("gif");
-        assertThat(ProjectSyncService.coerceKind("image", "video/webm")).isEqualTo("video");
-        assertThat(ProjectSyncService.coerceKind("image", "image/jpeg")).isEqualTo("image");
-        assertThat(ProjectSyncService.coerceKind("video", "application/octet-stream")).isEqualTo("video");
-    }
-
-    private static String fixture(String name) {
-        try (var in = ProjectSyncServiceTest.class.getResourceAsStream("/fixtures/" + name)) {
-            if (in == null) {
-                throw new IllegalStateException("Missing fixture: " + name);
-            }
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    void coerceKindMapsContentTypeToKind() {
+        assertThat(ProjectSyncService.coerceKind("image/gif")).isEqualTo("gif");
+        assertThat(ProjectSyncService.coerceKind("video/webm")).isEqualTo("video");
+        assertThat(ProjectSyncService.coerceKind("image/jpeg")).isEqualTo("image");
+        assertThat(ProjectSyncService.coerceKind("application/octet-stream")).isEqualTo("image");
     }
 }

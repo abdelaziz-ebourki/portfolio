@@ -61,14 +61,6 @@ public class Project {
         updatedAt = Instant.now();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getRepoFullName() {
-        return repoFullName;
-    }
-
     public String getSlug() {
         return slug;
     }
