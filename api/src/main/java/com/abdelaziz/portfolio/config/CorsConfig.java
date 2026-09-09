@@ -7,20 +7,22 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * CORS for the local Vite dev server and any deployed frontend origin.
- * Configure via {@code app.cors.allowed-origins} (comma-separated).
+ * CORS for local Vite dev servers (any localhost port — Vite
+ * auto-increments when 5173 is taken) and deployed frontend origins.
+ * Configure via {@code app.cors.allowed-origins} (comma-separated
+ * patterns, e.g. {@code http://localhost:* }).
  */
 @Configuration
 public class CorsConfig {
 
     @Bean
     WebMvcConfigurer corsConfigurer(
-            @Value("${app.cors.allowed-origins:http://localhost:5173}") String allowedOrigins) {
+            @Value("${app.cors.allowed-origins:http://localhost:*}") String allowedOrigins) {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins(allowedOrigins.split(","))
+                        .allowedOriginPatterns(allowedOrigins.split(","))
                         .allowedMethods("GET", "POST", "OPTIONS")
                         .allowedHeaders("*")
                         .maxAge(3600);

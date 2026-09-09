@@ -25,16 +25,18 @@ class CorsConfigTest {
     private ProjectCatalog catalog;
 
     @Test
-    void allowsConfiguredOrigin() throws Exception {
-        mvc.perform(get("/projects").header("Origin", "http://localhost:5173"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"));
+    void allowsAnyLocalhostPort() throws Exception {
+        for (String origin : new String[] {"http://localhost:5173", "http://localhost:5198"}) {
+            mvc.perform(get("/projects").header("Origin", origin))
+                    .andExpect(status().isOk())
+                    .andExpect(header().string("Access-Control-Allow-Origin", origin));
+        }
 
         mvc.perform(options("/projects")
-                        .header("Origin", "http://localhost:5173")
+                        .header("Origin", "http://localhost:5198")
                         .header("Access-Control-Request-Method", "GET"))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"));
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5198"));
     }
 
     @Test

@@ -30,7 +30,8 @@ admin:
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+    # Wildcard port: Vite auto-increments when 5173 is taken.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:*}
 
 management:
   endpoints:

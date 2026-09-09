@@ -13,6 +13,9 @@ dist
 dist-ssr
 *.local
 
+# Local env (see .env.example) — never commit secrets.
+.env
+
 # Java / Maven (any module: api/, future services)
 target/
 *.class
