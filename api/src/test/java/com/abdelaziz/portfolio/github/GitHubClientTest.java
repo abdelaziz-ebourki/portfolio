@@ -90,6 +90,15 @@ class GitHubClientTest {
     }
 
     @Test
+    void rejectsOversizedManifestBeforeDecoding() {
+        next = StubResponse.file("x", "blobsha2", GitHubClient.MAX_MANIFEST_BYTES + 1);
+
+        assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                .isInstanceOf(GitHubClientException.class)
+                .hasMessageContaining("exceeds size cap");
+    }
+
+    @Test
     void fetchesCoverBytes() {
         next = StubResponse.file("PNGDATA", "blobsha3", 7);
 
@@ -98,5 +107,47 @@ class GitHubClientTest {
         assertThat(new String(cover.bytes(), StandardCharsets.UTF_8)).isEqualTo("PNGDATA");
         assertThat(cover.contentType()).isEqualTo("image/png");
         // BinaryFile no longer carries the blob sha — deduped with TextFile's.
+    }
+
+    @Test
+    void mapsAuthFailuresAndRateLimit() {
+        for (int code : new int[] {401, 403}) {
+            next = new StubResponse(code, "{\"message\":\"Bad credentials\"}");
+            assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                    .isInstanceOf(GitHubClientException.class)
+                    .satisfies(e -> assertThat(((GitHubClientException) e).status()).isEqualTo(code));
+        }
+        next = new StubResponse(429, "{\"message\":\"rate limited\"}");
+        assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                .isInstanceOf(GitHubClientException.class)
+                .satisfies(e -> assertThat(((GitHubClientException) e).status()).isEqualTo(429));
+        next = new StubResponse(500, "{\"message\":\"boom\"}");
+        assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                .isInstanceOf(GitHubClientException.class)
+                .satisfies(e -> assertThat(((GitHubClientException) e).status()).isEqualTo(500));
+    }
+
+    @Test
+    void rejectsNonFileTypeAndBadEncoding() {
+        String encoded = Base64.getMimeEncoder().encodeToString("x".getBytes(StandardCharsets.UTF_8));
+        next = new StubResponse(200,
+                "{\"type\":\"dir\",\"encoding\":\"base64\",\"size\":1,\"sha\":\"abc\",\"content\":\"%s\"}".formatted(encoded));
+        assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                .isInstanceOf(GitHubClientException.class)
+                .hasMessageContaining("Not a file");
+
+        next = new StubResponse(200,
+                "{\"type\":\"file\",\"encoding\":\"utf-8\",\"size\":1,\"sha\":\"abc\",\"content\":\"%s\"}".formatted(encoded));
+        assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                .isInstanceOf(GitHubClientException.class)
+                .hasMessageContaining("Unexpected encoding");
+    }
+
+    @Test
+    void rejectsBadJsonFromGitHub() {
+        next = new StubResponse(200, "not json");
+        assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                .isInstanceOf(GitHubClientException.class)
+                .hasMessageContaining("bad JSON");
     }
 }

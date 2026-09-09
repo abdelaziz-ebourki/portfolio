@@ -82,4 +82,51 @@ class SyncAdminControllerTest {
                         .content("{\"repo\":\"example/gone\"}"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void hasCoverFalseWhenManifestHasNoCover() throws Exception {
+        Project plain = new Project("example/plain", "plain", "{\"slug\":\"plain\"}", "blob2");
+        when(sync.sync(eq("example/plain"), any())).thenReturn(plain);
+
+        mvc.perform(post("/admin/sync")
+                        .header("Authorization", "Bearer test-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"repo\":\"example/plain\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hasCover").value(false));
+    }
+
+    @Test
+    void mapsGitHubClientExceptionWithStatusPassthrough() throws Exception {
+        when(sync.sync(eq("example/boom"), any()))
+                .thenThrow(new com.abdelaziz.portfolio.github.GitHubClientException(429, "rate limited"));
+
+        mvc.perform(post("/admin/sync")
+                        .header("Authorization", "Bearer test-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"repo\":\"example/boom\"}"))
+                .andExpect(status().isTooManyRequests());
+
+        when(sync.sync(eq("example/boom2"), any()))
+                .thenThrow(new com.abdelaziz.portfolio.github.GitHubClientException(413, "too large"));
+        mvc.perform(post("/admin/sync")
+                        .header("Authorization", "Bearer test-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"repo\":\"example/boom2\"}"))
+                .andExpect(status().isPayloadTooLarge());
+    }
+
+    @Test
+    void exposesViolationsArrayOnInvalidManifest() throws Exception {
+        java.util.Set<String> violations = java.util.Set.of("$.slug: required");
+        when(sync.sync(eq("example/bad"), any()))
+                .thenThrow(new InvalidManifestException("Manifest violates schema: boom", violations));
+
+        mvc.perform(post("/admin/sync")
+                        .header("Authorization", "Bearer test-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"repo\":\"example/bad\"}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.violations[0]").value("$.slug: required"));
+    }
 }

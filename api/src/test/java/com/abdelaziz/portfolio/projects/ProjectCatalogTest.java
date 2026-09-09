@@ -57,4 +57,28 @@ class ProjectCatalogTest {
         assertThat(catalog.cover("plain")).isEmpty();
         assertThat(catalog.cover("ghost")).isEmpty();
     }
+
+    @Test
+    void coverWithMissingDataOrCorruptBase64() {
+        when(projects.findBySlug("nodata")).thenReturn(Optional.of(new Project(
+                "example/nodata", "nodata", "{\"slug\":\"nodata\",\"cover\":{\"kind\":\"image\"}}", null)));
+        assertThat(catalog.cover("nodata")).isEmpty();
+
+        when(projects.findBySlug("bad64")).thenReturn(Optional.of(new Project(
+                "example/bad64", "bad64",
+                "{\"slug\":\"bad64\",\"cover\":{\"kind\":\"image\",\"data\":\"!!!not-base64!!!\",\"contentType\":\"image/png\"}}",
+                null)));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> catalog.cover("bad64"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Stored cover bytes are corrupt");
+    }
+
+    @Test
+    void fallsBackToOctetStreamWhenContentTypeMissing() {
+        when(projects.findBySlug("nocontent")).thenReturn(Optional.of(new Project(
+                "example/nocontent", "nocontent",
+                "{\"slug\":\"nocontent\",\"cover\":{\"kind\":\"image\",\"data\":\"AQID\"}}", null)));
+        assertThat(catalog.cover("nocontent"))
+                .hasValueSatisfying(asset -> assertThat(asset.contentType()).isEqualTo("application/octet-stream"));
+    }
 }

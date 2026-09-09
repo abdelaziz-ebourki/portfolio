@@ -65,4 +65,20 @@ class ProjectControllerTest {
 
         mvc.perform(get("/projects/ghost/cover")).andExpect(status().isNotFound());
     }
+
+    @Test
+    void cover404WhenEmptyBytes() throws Exception {
+        when(catalog.cover("empty")).thenReturn(Optional.of(new CoverAsset(new byte[0], "image/png")));
+
+        mvc.perform(get("/projects/empty/cover")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void fallsBackToOctetStreamForInvalidContentType() throws Exception {
+        when(catalog.cover("badtype")).thenReturn(Optional.of(new CoverAsset(new byte[] { 1 }, "not a mime")));
+
+        mvc.perform(get("/projects/badtype/cover"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/octet-stream"));
+    }
 }
