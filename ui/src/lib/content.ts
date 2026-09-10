@@ -238,9 +238,25 @@ export const ui = {
     sending: { en: "Sending...", fr: "Envoi...", ar: "جارٍ الإرسال..." },
     sent: { en: "Sent!", fr: "Envoyé !", ar: "تم الإرسال!" },
     sentHint: {
-      en: "Thanks! This demo form doesn't send anything yet — email me directly instead.",
-      fr: "Merci ! Ce formulaire de démo n'envoie rien pour l'instant — écrivez-moi directement.",
-      ar: "شكرًا! نموذج العرض هذا لا يرسل أي شيء بعد — راسلني مباشرة عبر البريد.",
+      en: "Thanks! Your message is on its way — I'll get back to you soon.",
+      fr: "Merci ! Votre message est bien parti — je vous répondrai vite.",
+      ar: "شكرًا! رسالتك في الطريق — سأرد عليك قريبًا.",
+    },
+    sendError: {
+      en: "Couldn't send. Check your connection and try again.",
+      fr: "Envoi impossible. Vérifiez votre connexion et réessayez.",
+      ar: "تعذّر الإرسال. تحقق من الاتصال وحاول مجددًا.",
+    },
+    rateLimited: {
+      en: "Too many messages — please wait a bit before retrying.",
+      fr: "Trop de messages — patientez un peu avant de réessayer.",
+      ar: "رسائل كثيرة — انتظر قليلًا قبل إعادة المحاولة.",
+    },
+    tryAgain: { en: "Try again", fr: "Réessayer", ar: "حاول مجددًا" },
+    invalidField: {
+      en: "Please check this field.",
+      fr: "Veuillez vérifier ce champ.",
+      ar: "يرجى التحقق من هذا الحقل.",
     },
     orReach: { en: "Or reach me at", fr: "Ou contactez-moi à", ar: "أو تواصل معي عبر" },
   } satisfies Record<string, Localized>,

@@ -2,9 +2,10 @@ import { useState, type FormEvent } from "react"
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
+import { postContact } from "@/lib/contact-api"
 import { SectionHeading } from "@/components/section-heading"
 import { Button } from "@/components/ui/button"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -17,17 +18,40 @@ import {
 import { Mail, Send } from "lucide-react"
 import { GithubMark as Github, LinkedinMark as Linkedin } from "@/components/icons"
 
-type FormState = "idle" | "sending" | "sent"
+type FormState = "idle" | "sending" | "sent" | "error"
 
 export function Contact() {
   const { t } = useI18n()
   const [state, setState] = useState<FormState>("idle")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({})
+  const [rateLimited, setRateLimited] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (state !== "idle") return
+    if (state === "sending" || state === "sent") return
+    const form = new FormData(event.currentTarget)
     setState("sending")
-    window.setTimeout(() => setState("sent"), 900)
+    setFieldErrors({})
+    setRateLimited(false)
+    const result = await postContact({
+      name: String(form.get("name") ?? ""),
+      email: String(form.get("email") ?? ""),
+      message: String(form.get("message") ?? ""),
+      company: String(form.get("company") ?? ""),
+    })
+    if (result.ok) {
+      setState("sent")
+      return
+    }
+    if (result.error.kind === "validation") {
+      const invalid: Record<string, boolean> = {}
+      for (const field of Object.keys(result.error.fields)) invalid[field] = true
+      setFieldErrors(invalid)
+      setState("idle")
+      return
+    }
+    setRateLimited(result.error.kind === "rate-limited")
+    setState("error")
   }
 
   return (
@@ -41,14 +65,21 @@ export function Contact() {
             <CardDescription>{t(ui.contact.subtitle)}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={(e) => void handleSubmit(e)}>
               <FieldGroup className="gap-5">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field>
+                  <Field data-invalid={fieldErrors.name}>
                     <FieldLabel htmlFor="name">{t(ui.contact.nameLabel)}</FieldLabel>
-                    <Input id="name" name="name" required placeholder={t(ui.contact.namePlaceholder)} />
+                    <Input
+                      id="name"
+                      name="name"
+                      required
+                      placeholder={t(ui.contact.namePlaceholder)}
+                      aria-invalid={fieldErrors.name}
+                    />
+                    {fieldErrors.name && <FieldError>{t(ui.contact.invalidField)}</FieldError>}
                   </Field>
-                  <Field>
+                  <Field data-invalid={fieldErrors.email}>
                     <FieldLabel htmlFor="email">{t(ui.contact.emailLabel)}</FieldLabel>
                     <Input
                       id="email"
@@ -56,10 +87,12 @@ export function Contact() {
                       type="email"
                       required
                       placeholder={t(ui.contact.emailPlaceholder)}
+                      aria-invalid={fieldErrors.email}
                     />
+                    {fieldErrors.email && <FieldError>{t(ui.contact.invalidField)}</FieldError>}
                   </Field>
                 </div>
-                <Field>
+                <Field data-invalid={fieldErrors.message}>
                   <FieldLabel htmlFor="message">{t(ui.contact.messageLabel)}</FieldLabel>
                   <Textarea
                     id="message"
@@ -68,16 +101,28 @@ export function Contact() {
                     rows={5}
                     placeholder={t(ui.contact.messagePlaceholder)}
                     className="resize-none"
+                    aria-invalid={fieldErrors.message}
                   />
+                  {fieldErrors.message && <FieldError>{t(ui.contact.invalidField)}</FieldError>}
                 </Field>
-                <Button type="submit" disabled={state === "sending"} className="w-fit">
+                {/* Honeypot — bots fill it, humans never see it. */}
+                <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                  <label htmlFor="company">Company</label>
+                  <Input id="company" name="company" tabIndex={-1} autoComplete="off" />
+                </div>
+                <Button type="submit" disabled={state === "sending" || state === "sent"} className="w-fit">
                   <Send data-icon="inline-start" />
-                  {state === "idle" && t(ui.contact.send)}
+                  {(state === "idle" || state === "error") && t(ui.contact.send)}
                   {state === "sending" && t(ui.contact.sending)}
                   {state === "sent" && t(ui.contact.sent)}
                 </Button>
                 {state === "sent" && (
                   <p className="text-sm text-muted-foreground">{t(ui.contact.sentHint)}</p>
+                )}
+                {state === "error" && (
+                  <p className="text-sm text-destructive">
+                    {rateLimited ? t(ui.contact.rateLimited) : t(ui.contact.sendError)}
+                  </p>
                 )}
               </FieldGroup>
             </form>
