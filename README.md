@@ -73,6 +73,6 @@ portfolio/
 - [x] Fetch `.portfolio.json` & cover via GitHub Contents API
 - [x] Project upsert logic
 - [x] Project list UI with previews (`GET /api/projects` serves `ProjectDto`)
-- [ ] Wire UI to live API (persona fallback today)
+- [x] Wire UI to live API (silent persona fallback when unreachable)
 - [x] Docker Compose for local development
 - [ ] CI pipeline
