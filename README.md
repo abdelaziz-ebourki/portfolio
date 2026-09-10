@@ -75,4 +75,4 @@ portfolio/
 - [x] Project list UI with previews (`GET /api/projects` serves `ProjectDto`)
 - [x] Wire UI to live API (silent persona fallback when unreachable)
 - [x] Docker Compose for local development
-- [ ] CI pipeline
+- [x] CI pipeline
