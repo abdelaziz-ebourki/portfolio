@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.abdelaziz.portfolio.config.AdminAuth;
 import com.abdelaziz.portfolio.config.JacksonConfig;
 
 /** No ADMIN_TOKEN configured → the endpoint stays disabled. */
@@ -23,6 +24,9 @@ class SyncAdminDisabledTest {
 
     @MockitoBean
     private ProjectSyncService sync;
+
+    @MockitoBean
+    private AdminAuth admin;
 
     @Test
     void disabledWithoutToken() throws Exception {

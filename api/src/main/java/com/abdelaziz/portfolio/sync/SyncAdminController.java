@@ -1,12 +1,9 @@
 package com.abdelaziz.portfolio.sync;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abdelaziz.portfolio.config.AdminAuth;
 import com.abdelaziz.portfolio.github.GitHubClientException;
 import com.abdelaziz.portfolio.github.GitHubFileNotFoundException;
 import com.abdelaziz.portfolio.manifest.InvalidManifestException;
@@ -34,13 +32,12 @@ public class SyncAdminController {
 
     private final ProjectSyncService sync;
     private final ObjectMapper mapper;
-    private final String adminToken;
+    private final AdminAuth admin;
 
-    public SyncAdminController(
-            ProjectSyncService sync, ObjectMapper mapper, @Value("${admin.token:}") String adminToken) {
+    public SyncAdminController(ProjectSyncService sync, ObjectMapper mapper, AdminAuth admin) {
         this.sync = sync;
         this.mapper = mapper;
-        this.adminToken = adminToken == null ? "" : adminToken;
+        this.admin = admin;
     }
 
     public record SyncRequest(String repo, String ref) {
@@ -52,12 +49,10 @@ public class SyncAdminController {
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestBody SyncRequest request) {
 
-        if (adminToken.isBlank()) {
+        if (!admin.configured()) {
             return error(HttpStatus.SERVICE_UNAVAILABLE, "admin sync is not configured");
         }
-        byte[] expected = ("Bearer " + adminToken).getBytes(StandardCharsets.UTF_8);
-        byte[] actual = authorization == null ? new byte[0] : authorization.getBytes(StandardCharsets.UTF_8);
-        if (!MessageDigest.isEqual(expected, actual)) {
+        if (!admin.valid(authorization)) {
             return error(HttpStatus.UNAUTHORIZED, "invalid admin token");
         }
         if (request == null || request.repo() == null || !REPO.matcher(request.repo()).matches()) {

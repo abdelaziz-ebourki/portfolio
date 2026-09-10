@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.abdelaziz.portfolio.config.AdminAuth;
 import com.abdelaziz.portfolio.config.JacksonConfig;
 import com.abdelaziz.portfolio.github.GitHubFileNotFoundException;
 import com.abdelaziz.portfolio.manifest.InvalidManifestException;
@@ -30,6 +31,15 @@ class SyncAdminControllerTest {
 
     @MockitoBean
     private ProjectSyncService sync;
+
+    @MockitoBean
+    private AdminAuth admin;
+
+    @org.junit.jupiter.api.BeforeEach
+    void stubAdmin() {
+        when(admin.configured()).thenReturn(true);
+        when(admin.valid(eq("Bearer test-admin"))).thenReturn(true);
+    }
 
     @Test
     void syncsAndReportsCoverPresence() throws Exception {
