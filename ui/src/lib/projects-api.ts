@@ -2,11 +2,15 @@ import type { ProjectDto } from "@/lib/project-dto"
 import type { ProjectView } from "@/lib/projects-data"
 import { isSafeUrl } from "@/lib/project-dto"
 
-/** Base URL of the API (no trailing slash). Env overrides local default. */
+/**
+ * Base URL of the API (no trailing slash). Empty means same-origin:
+ * requests go to `/api/...` on the serving host (nginx proxy in prod,
+ * vite dev-proxy locally). Set VITE_API_URL for a direct absolute URL.
+ */
 export function apiBase(): string {
   const env = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
   if (env) return env.replace(/\/$/, "")
-  return "http://localhost:8080"
+  return ""
 }
 
 const FALLBACK_ICONS: ProjectView["icon"][] = ["webhook", "calendar", "book", "cloud"]

@@ -12,9 +12,9 @@ import type { ProjectDto } from "@/lib/project-dto"
 afterEach(() => vi.unstubAllEnvs())
 
 describe("apiBase", () => {
-  it("defaults to local api", () => {
+  it("defaults to same-origin", () => {
     vi.stubEnv("VITE_API_URL", "")
-    expect(apiBase()).toBe("http://localhost:8080")
+    expect(apiBase()).toBe("")
   })
   it("trims trailing slash", () => {
     vi.stubEnv("VITE_API_URL", "https://api.example.com/")
@@ -64,9 +64,14 @@ describe("fallback hashing", () => {
 })
 
 describe("resolveCoverUrl", () => {
-  it("prefixes relative api cover with base", () => {
+  it("keeps relative api cover same-origin by default", () => {
+    vi.stubEnv("VITE_API_URL", "")
+    expect(resolveCoverUrl("/api/projects/alpha/cover")).toBe("/api/projects/alpha/cover")
+  })
+  it("prefixes relative api cover with configured base", () => {
+    vi.stubEnv("VITE_API_URL", "http://localhost:8082")
     expect(resolveCoverUrl("/api/projects/alpha/cover")).toBe(
-      "http://localhost:8080/api/projects/alpha/cover"
+      "http://localhost:8082/api/projects/alpha/cover"
     )
   })
   it("keeps absolute https cover", () => {
@@ -78,11 +83,12 @@ describe("resolveCoverUrl", () => {
 
 describe("toProjectView", () => {
   it("resolves cover and assigns fallback visuals", () => {
+    vi.stubEnv("VITE_API_URL", "http://localhost:8082")
     const dto = minimalDto({
       cover: { url: "/api/projects/alpha/cover", alt: { en: "Board" }, kind: "image" },
     })
     const view = toProjectView(dto)
-    expect(view.dto.cover?.url).toBe("http://localhost:8080/api/projects/alpha/cover")
+    expect(view.dto.cover?.url).toBe("http://localhost:8082/api/projects/alpha/cover")
     expect(view.icon).toBeTruthy()
     expect(view.gradient).toBeTruthy()
   })
