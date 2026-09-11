@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +56,7 @@ public class SyncAdminController {
         if (!admin.valid(authorization)) {
             return error(HttpStatus.UNAUTHORIZED, "invalid admin token");
         }
-        if (request == null || request.repo() == null || !REPO.matcher(request.repo()).matches()) {
+        if (request == null || !validRepo(request.repo())) {
             return error(HttpStatus.BAD_REQUEST, "repo must look like owner/name");
         }
 
@@ -75,8 +76,28 @@ public class SyncAdminController {
             return error(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (GitHubClientException e) {
             HttpStatus mapped = HttpStatus.resolve(e.status());
-            return error(mapped != null ? mapped : HttpStatus.BAD_GATEWAY, e.getMessage());
+            // Upstream auth/server failures are ours to report as 502 — a 401
+            // here must only ever mean a bad ADMIN_TOKEN.
+            if (mapped == null || mapped.is5xxServerError()
+                    || mapped == HttpStatus.UNAUTHORIZED || mapped == HttpStatus.FORBIDDEN) {
+                return error(HttpStatus.BAD_GATEWAY, "GitHub request failed (" + e.status() + ")");
+            }
+            return error(mapped, e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            return error(HttpStatus.CONFLICT, "slug is already claimed by another repo");
         }
+    }
+
+    private static boolean validRepo(String repo) {
+        if (repo == null || !REPO.matcher(repo).matches()) {
+            return false;
+        }
+        for (String segment : repo.split("/", -1)) {
+            if (segment.equals(".") || segment.equals("..")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean hasCover(String storedManifest) {

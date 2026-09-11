@@ -22,9 +22,14 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns(allowedOrigins.split(","))
+                        .allowedOriginPatterns(
+                                java.util.Arrays.stream(allowedOrigins.split(","))
+                                        .map(String::trim)
+                                        .filter(s -> !s.isEmpty())
+                                        .toArray(String[]::new))
                         .allowedMethods("GET", "POST", "OPTIONS")
                         .allowedHeaders("*")
+                        .exposedHeaders("ETag")
                         .maxAge(3600);
             }
         };

@@ -56,12 +56,14 @@ public class WebhookController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> receive(
-            @RequestHeader("X-Hub-Signature-256") String signature,
-            @RequestHeader("X-GitHub-Event") String event,
+            @RequestHeader(value = "X-Hub-Signature-256", required = false) String signature,
+            @RequestHeader(value = "X-GitHub-Event", required = false) String event,
             @RequestHeader(value = "X-GitHub-Delivery", required = false) String deliveryId,
             @RequestBody byte[] body) {
 
-        if (!verifier.valid(signature, body)) {
+        // Fail closed with 401 (not Spring's default 400) when the
+        // signature or event headers are absent.
+        if (signature == null || event == null || !verifier.valid(signature, body)) {
             return status(HttpStatus.UNAUTHORIZED, "error", "invalid signature");
         }
 

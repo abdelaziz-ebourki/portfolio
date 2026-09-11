@@ -59,6 +59,29 @@ class ContactAdminControllerTest {
     }
 
     @Test
+    void marksMessageReadAndHandlesUnknownId() throws Exception, IllegalAccessException, NoSuchFieldException {
+        when(admin.configured()).thenReturn(true);
+        when(admin.valid("Bearer test-admin")).thenReturn(true);
+        var message = new ContactMessage("Jane", "jane@company.com", "Hello", "127.0.0.1");
+        var id = UUID.randomUUID();
+        var idField = ContactMessage.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(message, id);
+        when(messages.findById(id)).thenReturn(java.util.Optional.of(message));
+
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .patch("/admin/messages/" + message.getId())
+                        .header("Authorization", "Bearer test-admin"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.read").value(true));
+
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .patch("/admin/messages/" + UUID.randomUUID())
+                        .header("Authorization", "Bearer test-admin"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void dtoCarriesIdAndTimestamp() {
         var dto = new ContactAdminController.MessageDto(
                 UUID.randomUUID(), "Jane", "j@x.com", "Hi", Instant.now(), false);

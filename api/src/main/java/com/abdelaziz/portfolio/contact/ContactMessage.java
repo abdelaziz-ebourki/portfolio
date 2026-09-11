@@ -72,4 +72,8 @@ public class ContactMessage {
     public boolean isRead() {
         return read;
     }
+
+    public void markRead() {
+        this.read = true;
+    }
 }

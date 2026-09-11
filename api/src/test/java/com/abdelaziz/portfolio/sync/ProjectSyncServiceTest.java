@@ -80,12 +80,12 @@ class ProjectSyncServiceTest {
         Project stored = new Project("example/taskboard", "taskboard", "{}", "blob1");
         when(github.fetchManifest("example/taskboard", "abc123"))
                 .thenReturn(new GitHubClient.TextFile(Fixtures.read("manifest-valid.json"), "blob1"));
-        when(github.fetchCover("example/taskboard", "docs/cover.png", "abc123"))
-                .thenReturn(new GitHubClient.BinaryFile(new byte[] { 1 }, "image/png"));
         when(projects.findByRepoFullName("example/taskboard")).thenReturn(Optional.of(stored));
 
         assertThat(sync.sync("example/taskboard", "abc123")).isSameAs(stored);
         verify(projects, never()).save(any());
+        // Unchanged blob must not burn rate-limit on the cover download.
+        verify(github, never()).fetchCover(any(), any(), any());
     }
 
     @Test

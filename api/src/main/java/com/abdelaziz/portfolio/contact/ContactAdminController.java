@@ -8,7 +8,10 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,5 +53,27 @@ public class ContactAdminController {
                         m.getCreatedAt(), m.isRead()))
                 .toList();
         return ResponseEntity.ok(out);
+    }
+
+    @PatchMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Transactional
+    public ResponseEntity<?> markRead(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable UUID id) {
+        if (!admin.configured()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Map.of("error", "admin messages are not configured"));
+        }
+        if (!admin.valid(authorization)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "invalid admin token"));
+        }
+        return messages.findById(id)
+                .map(m -> {
+                    m.markRead();
+                    return ResponseEntity.ok(Map.of("id", m.getId().toString(), "read", true));
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "message not found")));
     }
 }

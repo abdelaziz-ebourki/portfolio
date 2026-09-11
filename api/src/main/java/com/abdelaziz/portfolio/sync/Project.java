@@ -38,7 +38,7 @@ public class Project {
     @JdbcTypeCode(SqlTypes.JSON)
     private String manifest;
 
-    @Column(name = "synced_sha", columnDefinition = "char(40)")
+    @Column(name = "synced_sha", columnDefinition = "varchar(40)")
     @JdbcTypeCode(SqlTypes.CHAR)
     private String syncedSha;
 

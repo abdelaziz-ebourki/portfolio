@@ -37,12 +37,23 @@ describe("postContact", () => {
     expect(await postContact(input)).toEqual({ ok: false, error: { kind: "rate-limited" } })
   })
 
-  it("maps network failure and 500 to network", async () => {
+  it("maps network failure to network and 500 to server", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("down")))
     expect(await postContact(input)).toEqual({ ok: false, error: { kind: "network" } })
 
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(500, {})))
-    expect(await postContact(input)).toEqual({ ok: false, error: { kind: "network" } })
+    expect(await postContact(input)).toEqual({ ok: false, error: { kind: "server" } })
+  })
+
+  it("drops non-string values from 422 fields", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse(422, { fields: { email: "bad", nested: { x: 1 } } }))
+    )
+    expect(await postContact(input)).toEqual({
+      ok: false,
+      error: { kind: "validation", fields: { email: "bad" } },
+    })
   })
 
   it("posts to the configured api base", async () => {

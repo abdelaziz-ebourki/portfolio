@@ -24,22 +24,33 @@ export function Contact() {
   const { t } = useI18n()
   const [state, setState] = useState<FormState>("idle")
   const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({})
-  const [rateLimited, setRateLimited] = useState(false)
+  const [errorKind, setErrorKind] = useState<"rate-limited" | "server" | "network">("network")
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (state === "sending" || state === "sent") return
-    const form = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const data = new FormData(form)
+    const controller = new AbortController()
     setState("sending")
     setFieldErrors({})
-    setRateLimited(false)
-    const result = await postContact({
-      name: String(form.get("name") ?? ""),
-      email: String(form.get("email") ?? ""),
-      message: String(form.get("message") ?? ""),
-      company: String(form.get("company") ?? ""),
-    })
+    let result: Awaited<ReturnType<typeof postContact>>
+    try {
+      result = await postContact(
+        {
+          name: String(data.get("name") ?? ""),
+          email: String(data.get("email") ?? ""),
+          message: String(data.get("message") ?? ""),
+          company: String(data.get("company") ?? ""),
+        },
+        controller.signal
+      )
+    } catch {
+      // Unmounted mid-flight — nothing to render into.
+      return
+    }
     if (result.ok) {
+      form.reset()
       setState("sent")
       return
     }
@@ -50,7 +61,7 @@ export function Contact() {
       setState("idle")
       return
     }
-    setRateLimited(result.error.kind === "rate-limited")
+    setErrorKind(result.error.kind)
     setState("error")
   }
 
@@ -75,7 +86,7 @@ export function Contact() {
                       name="name"
                       required
                       placeholder={t(ui.contact.namePlaceholder)}
-                      aria-invalid={fieldErrors.name}
+                      aria-invalid={fieldErrors.name || undefined}
                     />
                     {fieldErrors.name && <FieldError>{t(ui.contact.invalidField)}</FieldError>}
                   </Field>
@@ -87,7 +98,7 @@ export function Contact() {
                       type="email"
                       required
                       placeholder={t(ui.contact.emailPlaceholder)}
-                      aria-invalid={fieldErrors.email}
+                      aria-invalid={fieldErrors.email || undefined}
                     />
                     {fieldErrors.email && <FieldError>{t(ui.contact.invalidField)}</FieldError>}
                   </Field>
@@ -101,7 +112,7 @@ export function Contact() {
                     rows={5}
                     placeholder={t(ui.contact.messagePlaceholder)}
                     className="resize-none"
-                    aria-invalid={fieldErrors.message}
+                    aria-invalid={fieldErrors.message || undefined}
                   />
                   {fieldErrors.message && <FieldError>{t(ui.contact.invalidField)}</FieldError>}
                 </Field>
@@ -117,11 +128,22 @@ export function Contact() {
                   {state === "sent" && t(ui.contact.sent)}
                 </Button>
                 {state === "sent" && (
-                  <p className="text-sm text-muted-foreground">{t(ui.contact.sentHint)}</p>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p role="status" className="text-sm text-muted-foreground">
+                      {t(ui.contact.sentHint)}
+                    </p>
+                    <Button variant="link" size="sm" onClick={() => setState("idle")}>
+                      {t(ui.contact.sendAnother)}
+                    </Button>
+                  </div>
                 )}
                 {state === "error" && (
-                  <p className="text-sm text-destructive">
-                    {rateLimited ? t(ui.contact.rateLimited) : t(ui.contact.sendError)}
+                  <p role="alert" className="text-sm text-destructive">
+                    {errorKind === "rate-limited"
+                      ? t(ui.contact.rateLimited)
+                      : errorKind === "server"
+                        ? t(ui.contact.serverError)
+                        : t(ui.contact.sendError)}
                   </p>
                 )}
               </FieldGroup>

@@ -36,18 +36,22 @@ public class ProjectSyncService {
     @Transactional
     public Project sync(String repoFullName, String ref) {
         GitHubClient.TextFile manifestFile = github.fetchManifest(repoFullName, ref);
-        ObjectNode manifest = (ObjectNode) validator.requireValid(manifestFile.content());
+
+        // Cheap no-op first: an unchanged blob skips validation, cover
+        // download and writes entirely (saves GitHub rate-limit).
+        var existing = projects.findByRepoFullName(repoFullName);
+        if (existing.isPresent() && existing.get().getSyncedSha()
+                .map(stored -> stored.equals(manifestFile.sha())).orElse(false)) {
+            log.debug("Sync skipped for {}: manifest blob {} unchanged", repoFullName, manifestFile.sha());
+            return existing.get();
+        }
+
+        ObjectNode manifest = requireObject(validator.requireValid(manifestFile.content()));
         String slug = manifest.path("slug").asText();
 
         enrichCover(repoFullName, ref, manifest);
         String stored = manifest.toString();
 
-        var existing = projects.findByRepoFullName(repoFullName);
-        if (existing.isPresent()
-                && existing.get().getSyncedSha().map(manifestFile.sha()::equals).orElse(false)) {
-            log.debug("Sync skipped for {}: manifest blob {} unchanged", repoFullName, manifestFile.sha());
-            return existing.get();
-        }
         if (existing.isPresent()) {
             existing.get().refresh(slug, stored, manifestFile.sha());
             log.info("Synced {} (slug={}, blob={})", repoFullName, slug, manifestFile.sha());
@@ -63,9 +67,19 @@ public class ProjectSyncService {
      * can never break the UI's hover-play. A missing cover asset fails the
      * whole sync — explicit beats silently cover-less.
      */
+    private static ObjectNode requireObject(com.fasterxml.jackson.databind.JsonNode node) {
+        if (!node.isObject()) {
+            throw new IllegalStateException("Validated manifest is not a JSON object");
+        }
+        return (ObjectNode) node;
+    }
+
     private void enrichCover(String repoFullName, String ref, ObjectNode manifest) {
         if (!manifest.has("cover")) {
             return;
+        }
+        if (!manifest.path("cover").isObject()) {
+            throw new IllegalStateException("Manifest cover is not a JSON object");
         }
         ObjectNode cover = (ObjectNode) manifest.path("cover");
         String path = cover.path("path").asText();

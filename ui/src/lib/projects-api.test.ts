@@ -50,6 +50,11 @@ describe("isValidProjectDto", () => {
     expect(isValidProjectDto({ ...minimalDto(), name: {} as unknown as ProjectDto["name"] })).toBe(false)
     expect(isValidProjectDto(null)).toBe(false)
   })
+  it("rejects empty english name and unknown status/kind", () => {
+    expect(isValidProjectDto({ ...minimalDto(), name: { en: "" } })).toBe(false)
+    expect(isValidProjectDto({ ...minimalDto(), status: "draft" })).toBe(false)
+    expect(isValidProjectDto({ ...minimalDto(), kind: "freelance" })).toBe(false)
+  })
 })
 
 describe("fallback hashing", () => {
@@ -78,6 +83,10 @@ describe("resolveCoverUrl", () => {
     expect(resolveCoverUrl("https://cdn.example.com/cover.png")).toBe(
       "https://cdn.example.com/cover.png"
     )
+  })
+  it("drops unsafe schemes instead of retaining them", () => {
+    expect(resolveCoverUrl("javascript:alert(1)")).toBe("")
+    expect(resolveCoverUrl("data:image/png;base64,aaa")).toBe("")
   })
 })
 

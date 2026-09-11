@@ -152,6 +152,17 @@ class WebhookControllerTest {
         verify(sync, never()).sync(any(), any());
     }
 
+    @Test
+    void missingSignatureHeaderIsUnauthorized() throws Exception {
+        mvc.perform(post("/webhooks/github")
+                        .header("X-GitHub-Event", "push")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(pushTouchingManifest()))
+                .andExpect(status().isUnauthorized());
+
+        verify(deliveries, never()).save(any());
+    }
+
     private static byte[] pushTouchingManifest() {
         return pushJson("""
                 {"added": [".portfolio.json"], "modified": ["src/Main.java"], "removed": []}""");

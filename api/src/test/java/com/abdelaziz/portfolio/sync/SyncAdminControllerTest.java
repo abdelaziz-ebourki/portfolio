@@ -127,6 +127,35 @@ class SyncAdminControllerTest {
     }
 
     @Test
+    void mapsUpstreamAuthFailureToBadGateway() throws Exception {
+        when(sync.sync(eq("example/boom3"), any()))
+                .thenThrow(new com.abdelaziz.portfolio.github.GitHubClientException(401, "Bad credentials"));
+
+        mvc.perform(post("/admin/sync")
+                        .header("Authorization", "Bearer test-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"repo\":\"example/boom3\"}"))
+                .andExpect(status().isBadGateway());
+    }
+
+    @Test
+    void rejectsDotSegmentsAndConflicts() throws Exception {
+        mvc.perform(post("/admin/sync")
+                        .header("Authorization", "Bearer test-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"repo\":\"../secret\"}"))
+                .andExpect(status().isBadRequest());
+
+        when(sync.sync(eq("example/taken"), any()))
+                .thenThrow(new org.springframework.dao.DataIntegrityViolationException("slug"));
+        mvc.perform(post("/admin/sync")
+                        .header("Authorization", "Bearer test-admin")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"repo\":\"example/taken\"}"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void exposesViolationsArrayOnInvalidManifest() throws Exception {
         java.util.Set<String> violations = java.util.Set.of("$.slug: required");
         when(sync.sync(eq("example/bad"), any()))

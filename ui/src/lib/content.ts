@@ -258,7 +258,17 @@ export const ui = {
       fr: "Trop de messages — patientez un peu avant de réessayer.",
       ar: "رسائل كثيرة — انتظر قليلًا قبل إعادة المحاولة.",
     },
+    serverError: {
+      en: "Something broke on my side. Please try again later.",
+      fr: "Un problème est survenu de mon côté. Réessayez plus tard.",
+      ar: "حدث خطأ من جهتي. يرجى المحاولة لاحقًا.",
+    },
     tryAgain: { en: "Try again", fr: "Réessayer", ar: "حاول مجددًا" },
+    sendAnother: {
+      en: "Send another message",
+      fr: "Envoyer un autre message",
+      ar: "إرسال رسالة أخرى",
+    },
     invalidField: {
       en: "Please check this field.",
       fr: "Veuillez vérifier ce champ.",

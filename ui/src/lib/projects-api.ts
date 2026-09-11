@@ -35,9 +35,13 @@ export function fallbackGradient(slug: string): string {
   return FALLBACK_GRADIENTS[hashSlug(slug) % FALLBACK_GRADIENTS.length]
 }
 
-/** Turn a (possibly relative) cover URL from the API into an absolute one. */
+/**
+ * Turn a (possibly relative) cover URL from the API into an absolute one.
+ * Unsafe schemes are dropped to "" so they never linger in state —
+ * rendering re-checks, but the DTO must not retain a javascript: URL.
+ */
 export function resolveCoverUrl(url: string): string {
-  if (!isSafeUrl(url)) return url
+  if (!isSafeUrl(url)) return ""
   if (url.startsWith("/")) return `${apiBase()}${url}`
   return url
 }
@@ -46,12 +50,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
 }
 
+const STATUSES = new Set(["shipped", "in-progress", "maintained", "archived"])
+const KINDS = new Set(["personal", "academic", "client", "oss"])
+
 export function isValidProjectDto(value: unknown): value is ProjectDto {
   if (!isRecord(value)) return false
   if (typeof value.slug !== "string" || value.slug.length === 0) return false
-  if (typeof value.status !== "string") return false
-  if (typeof value.kind !== "string") return false
-  if (!isRecord(value.name) || typeof (value.name as Record<string, unknown>).en !== "string") return false
+  if (typeof value.status !== "string" || !STATUSES.has(value.status)) return false
+  if (typeof value.kind !== "string" || !KINDS.has(value.kind)) return false
+  const en = (value.name as Record<string, unknown> | undefined)?.en
+  if (!isRecord(value.name) || typeof en !== "string" || en.length === 0) return false
   return true
 }
 
@@ -64,9 +72,24 @@ export function toProjectView(dto: ProjectDto): ProjectView {
   }
 }
 
+/** Fetch timeout so a hung API surfaces the fallback instead of skeletons forever. */
+export const PROJECTS_TIMEOUT_MS = 10_000
+
+export function withTimeout(signal?: AbortSignal, ms = PROJECTS_TIMEOUT_MS): AbortSignal {
+  const combined = AbortSignal.timeout(ms)
+  if (!signal) return combined
+  if (signal.aborted) return signal
+  const controller = new AbortController()
+  const onAbort = () => controller.abort(signal.reason)
+  signal.addEventListener("abort", onAbort, { once: true })
+  combined.addEventListener("abort", onAbort, { once: true })
+  return controller.signal
+}
+
 export async function fetchProjectDtos(signal?: AbortSignal): Promise<ProjectDto[]> {
-  const res = await fetch(`${apiBase()}/api/projects`, { signal })
+  const res = await fetch(`${apiBase()}/api/projects`, { signal: withTimeout(signal) })
   if (!res.ok) throw new Error(`GET /api/projects failed: ${res.status}`)
+  if (res.status === 204) return []
   const data: unknown = await res.json()
   if (!Array.isArray(data)) throw new Error("Expected array from /api/projects")
   const valid = data.filter(isValidProjectDto)
