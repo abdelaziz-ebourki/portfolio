@@ -85,5 +85,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build API image
-        run: docker compose build api
+      - name: Build images
+        run: docker compose build api ui
