@@ -18,13 +18,20 @@ type Props = {
 export function SocialLinks({ className, iconClassName }: Props) {
   return (
     <div className={cn("flex items-center gap-1", className)}>
-      {LINKS.map(({ href, label, icon: Icon }) => (
-        <Button key={label} variant="ghost" size="icon" asChild>
-          <a href={href} target="_blank" rel="noreferrer" aria-label={label}>
-            <Icon className={iconClassName} />
-          </a>
-        </Button>
-      ))}
+      {LINKS.map(({ href, label, icon: Icon }) => {
+        const external = !href.startsWith("mailto:")
+        return (
+          <Button key={label} variant="ghost" size="icon" asChild>
+            <a
+              href={href}
+              {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
+              aria-label={label}
+            >
+              <Icon className={iconClassName} />
+            </a>
+          </Button>
+        )
+      })}
     </div>
   )
 }

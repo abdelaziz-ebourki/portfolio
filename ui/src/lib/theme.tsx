@@ -19,8 +19,12 @@ function readInitialTheme(): Theme {
     if (document.documentElement.classList.contains("dark")) return "dark"
   }
   if (typeof window !== "undefined") {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored === "light" || stored === "dark") return stored
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY)
+      if (stored === "light" || stored === "dark") return stored
+    } catch {
+      // Blocked storage (private mode) — fall through to default.
+    }
   }
   return "dark"
 }

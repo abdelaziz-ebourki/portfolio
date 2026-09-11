@@ -4,11 +4,7 @@ import { ui } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error — FaultyTerminal is JS (react-bits) with no types
 import FaultyTerminal from "@/components/FaultyTerminal";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error — TextType is JS (react-bits) with no types
 import TextType from "@/components/TextType";
 import { SocialLinks } from "@/components/social-links";
 import { LogoLoop } from "@/components/logo-loop";
@@ -278,7 +274,7 @@ export function Hero() {
 					scaleOnHover
 					fadeOut
 					fadeOutColor={faultyTerminalProps.bg}
-					ariaLabel="Technologies I work with"
+					ariaLabel={t(ui.hero.techLoopLabel)}
 					className="pointer-events-auto text-foreground/70"
 				/>
 			</div>

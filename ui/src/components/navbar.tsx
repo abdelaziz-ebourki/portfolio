@@ -57,11 +57,17 @@ export function Navbar() {
           </Button>
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label={open ? t(ui.nav.closeMenu) : t(ui.nav.openMenu)}
+                aria-expanded={open}
+              >
                 {open ? <X /> : <Menu />}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
+            <SheetContent side="right" className="w-72" closeLabel={t(ui.nav.closeMenu)}>
               <SheetHeader>
                 <SheetTitle className="font-mono text-primary">
                   alex@dev:~$

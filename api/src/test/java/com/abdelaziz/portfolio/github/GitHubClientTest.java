@@ -106,7 +106,6 @@ class GitHubClientTest {
 
         assertThat(new String(cover.bytes(), StandardCharsets.UTF_8)).isEqualTo("PNGDATA");
         assertThat(cover.contentType()).isEqualTo("image/png");
-        // BinaryFile no longer carries the blob sha — deduped with TextFile's.
     }
 
     @Test

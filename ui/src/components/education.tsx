@@ -21,8 +21,8 @@ export function Education() {
       <SectionHeading eyebrow={ui.education.subtitle} title={ui.education.title} />
 
       <div className="grid gap-5 md:grid-cols-2">
-        {education.map((item) => (
-          <Card key={item.period} className="bg-card/60">
+        {education.map((item, index) => (
+          <Card key={`${item.period}-${index}`} className="bg-card/60">
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex size-11 items-center justify-center rounded-none border border-border bg-muted/50">

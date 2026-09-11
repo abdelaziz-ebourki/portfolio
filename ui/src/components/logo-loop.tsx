@@ -233,8 +233,16 @@ export const LogoLoop = memo(function LogoLoop({
       attributes: true,
       attributeFilter: ["dir", "lang"],
     })
-    document.fonts.ready.then(updateDimensions).catch(() => {})
-    return () => observer.disconnect()
+    let cancelled = false
+    document.fonts.ready
+      .then(() => {
+        if (!cancelled) updateDimensions()
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+      observer.disconnect()
+    }
   }, [updateDimensions])
 
   useAnimationLoop(trackRef, targetVelocity, seqWidth, isHovered, effectiveHoverSpeed)
@@ -273,7 +281,9 @@ export const LogoLoop = memo(function LogoLoop({
 
       const isNodeItem = "node" in item
       const content = isNodeItem ? (
-        <span className="logoloop__node" aria-hidden={!!item.href && !item.ariaLabel}>
+        // Decorative nodes carry no per-item name — the loop root is
+        // labelled instead, so hide them from assistive tech entirely.
+        <span className="logoloop__node" aria-hidden="true">
           {item.node}
         </span>
       ) : (

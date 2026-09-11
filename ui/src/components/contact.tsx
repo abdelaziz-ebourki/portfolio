@@ -167,7 +167,7 @@ export function Contact() {
           <a
             href={persona.github}
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
             className="group flex items-center gap-3 rounded-none border border-border bg-card/60 p-4 transition-colors hover:border-foreground/25"
           >
             <Github className="size-4.5 text-muted-foreground transition-colors group-hover:text-primary" />
@@ -177,7 +177,7 @@ export function Contact() {
           <a
             href={persona.linkedin}
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
             className="group flex items-center gap-3 rounded-none border border-border bg-card/60 p-4 transition-colors hover:border-foreground/25"
           >
             <Linkedin className="size-4.5 text-muted-foreground transition-colors group-hover:text-primary" />

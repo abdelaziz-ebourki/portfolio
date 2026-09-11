@@ -8,11 +8,31 @@ export const ui = {
     education: { en: "Education", fr: "Formation", ar: "التعليم" },
     terminal: { en: "Terminal", fr: "Terminal", ar: "الطرفية" },
     contact: { en: "Contact", fr: "Contact", ar: "تواصل" },
+    openMenu: { en: "Open menu", fr: "Ouvrir le menu", ar: "فتح القائمة" },
+    closeMenu: { en: "Close menu", fr: "Fermer le menu", ar: "إغلاق القائمة" },
   } satisfies Record<string, Localized>,
 
   hero: {
     ctaProjects: { en: "View my work", fr: "Voir mes projets", ar: "شاهد أعمالي" },
     ctaContact: { en: "Get in touch", fr: "Me contacter", ar: "تواصل معي" },
+    techLoopLabel: {
+      en: "Technologies I work with",
+      fr: "Technologies que j'utilise",
+      ar: "التقنيات التي أعمل بها",
+    },
+  } satisfies Record<string, Localized>,
+
+  theme: {
+    switchToLight: {
+      en: "Switch to light theme",
+      fr: "Passer au thème clair",
+      ar: "التبديل إلى المظهر الفاتح",
+    },
+    switchToDark: {
+      en: "Switch to dark theme",
+      fr: "Passer au thème sombre",
+      ar: "التبديل إلى المظهر الداكن",
+    },
   } satisfies Record<string, Localized>,
 
   about: {

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react"
+
+const MAX_LINES = 200
 import { persona } from "@/lib/persona"
 import { ui } from "@/lib/content"
 import { useI18n } from "@/lib/i18n"
@@ -48,10 +50,10 @@ export function TerminalSection() {
   }, [lines])
 
   const respond = useCallback((output: string[], kind: LineKind = "output") => {
-    setLines((prev) => [
-      ...prev,
-      ...output.map((content) => ({ id: nextId(), kind, content })),
-    ])
+    // Cap rendered lines so a long session can't grow the DOM unbounded.
+    setLines((prev) =>
+      [...prev, ...output.map((content) => ({ id: nextId(), kind, content }))].slice(-MAX_LINES)
+    )
   }, [])
 
   // fallow-ignore-next-line complexity -- run handles 12 terminal commands, intentional switch

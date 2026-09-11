@@ -7,6 +7,8 @@ import { reactDevtools } from "agent-react-devtools/vite"
 const API_PORT = process.env.API_PORT ?? "8080"
 
 export default defineConfig({
+  // reactDevtools is serve-only by design (apply: "serve" in the
+  // plugin) — it never lands in the production bundle.
   plugins: [reactDevtools(), react(), tailwindcss()],
   resolve: {
     alias: {
@@ -23,7 +25,9 @@ export default defineConfig({
       },
     },
   },
-  // vitest config — cast to avoid vite/vitest type mismatch
+  // vitest fields live on a nested copy of vite's types (rollup vs
+  // rolldown) — the cast bridges that without hiding real config errors
+  // inside the object literal itself.
   test: {
     environment: "jsdom",
     globals: true,

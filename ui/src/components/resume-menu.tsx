@@ -11,7 +11,8 @@ import {
 import { Check, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const baseUrl = import.meta.env.BASE_URL || "/"
+const rawBase = import.meta.env.BASE_URL || "/"
+const baseUrl = rawBase.endsWith("/") ? rawBase : `${rawBase}/`
 
 const resumeFiles: Array<{ lang: Lang; file: string }> = [
   { lang: "en", file: `${baseUrl}resumes/cv-en.pdf` },

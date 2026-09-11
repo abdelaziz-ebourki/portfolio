@@ -79,12 +79,46 @@ jobs:
         run: npm run lint
 
   compose:
-    name: Compose image build
+    name: Compose build + smoke
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      API_PORT: 8082
+      UI_PORT: 8083
     steps:
       - uses: actions/checkout@v4
 
       - name: Build images
         run: docker compose build api ui
+
+      - name: Start stack
+        run: docker compose up -d db api ui
+
+      - name: Wait for health
+        run: |
+          for i in $(seq 1 30); do
+            api=$(docker inspect --format='{{.State.Health.Status}}' portfolio-api-1 2>/dev/null)
+            ui=$(docker inspect --format='{{.State.Health.Status}}' portfolio-ui-1 2>/dev/null)
+            if [ "$api" = "healthy" ] && [ "$ui" = "healthy" ]; then echo "stack healthy"; break; fi
+            sleep 10
+          done
+          [ "$(docker inspect --format='{{.State.Health.Status}}' portfolio-api-1)" = "healthy" ]
+          [ "$(docker inspect --format='{{.State.Health.Status}}' portfolio-ui-1)" = "healthy" ]
+
+      - name: Smoke test
+        run: |
+          curl -fsS http://localhost:8082/api/health | grep -q '"status":"UP"'
+          html=$(curl -fsS http://localhost:8083/)
+          echo "$html" | grep -qi '<!doctype html>'
+          curl -fsS http://localhost:8083/api/health | grep -q '"status":"UP"'
+          curl -fsS http://localhost:8083/api/projects
+          # SPA fallback for client routes
+          curl -fsS -o /dev/null http://localhost:8083/projects
+          # Hashed bundle serves with immutable cache
+          asset=$(echo "$html" | grep -o '/assets/[^"]*\.js' | head -1)
+          curl -fsSI "http://localhost:8083$asset" | grep -qi 'immutable'
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

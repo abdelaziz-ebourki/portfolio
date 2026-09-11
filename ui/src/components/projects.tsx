@@ -283,7 +283,7 @@ function RepoButtons({ dto }: { dto: ProjectDto }) {
   if (repos.length === 1) {
     return (
       <Button asChild variant="ghost" size="sm">
-        <a href={repos[0].url} target="_blank" rel="noreferrer">
+        <a href={repos[0].url} target="_blank" rel="noreferrer noopener">
           <Github data-icon="inline-start" />
           {t(ui.projects.viewCode)}
         </a>
@@ -303,7 +303,7 @@ function RepoButtons({ dto }: { dto: ProjectDto }) {
         <DropdownMenuGroup>
           {repos.map((repo, i) => (
             <DropdownMenuItem key={`${repo.label}-${i}`} asChild>
-              <a href={repo.url} target="_blank" rel="noreferrer">
+              <a href={repo.url} target="_blank" rel="noreferrer noopener">
                 {repo.label}
               </a>
             </DropdownMenuItem>
@@ -327,7 +327,7 @@ function ExtraLinks({ dto }: { dto: ProjectDto }) {
       {links.map(({ id, url, label, Icon }) =>
         isSafeUrl(url) ? (
           <Button key={id} asChild variant="ghost" size="sm">
-            <a href={url} target="_blank" rel="noreferrer">
+            <a href={url} target="_blank" rel="noreferrer noopener">
               <Icon data-icon="inline-start" />
               {label}
             </a>
@@ -373,8 +373,8 @@ function ProjectCard({ view, labels }: { view: ProjectView; labels: Labels }) {
         <CardContent className="flex flex-1 flex-col gap-4 pb-4">
           {highlights.length > 0 && (
             <ul className="flex flex-col gap-1.5">
-              {highlights.map((highlight) => (
-                <li key={highlight} className="flex items-start gap-2 text-sm text-muted-foreground">
+              {highlights.map((highlight, index) => (
+                <li key={`${index}-${highlight}`} className="flex items-start gap-2 text-sm text-muted-foreground">
                   <Check className="mt-0.5 size-4 shrink-0 text-primary" />
                   {highlight}
                 </li>
@@ -417,20 +417,23 @@ function FilterChips<T extends string>({
   value,
   onChange,
   getLabel,
+  label,
 }: {
   options: readonly T[]
   value: T | "all"
   onChange: (next: T | "all") => void
   getLabel: (option: T) => string
+  label: string
 }) {
   const { t } = useI18n()
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
       {(["all", ...options] as const).map((option) => (
         <Button
           key={option}
           variant={value === option ? "default" : "outline"}
           size="sm"
+          aria-pressed={value === option}
           onClick={() => onChange(option)}
         >
           {option === "all" ? t(ui.projects.all) : getLabel(option as T)}
@@ -514,6 +517,7 @@ export function Projects() {
             value={kindFilter}
             onChange={setKindFilter}
             getLabel={(kind) => labels.kind[kind]}
+            label={t(ui.projects.filterByType)}
           />
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -525,6 +529,7 @@ export function Projects() {
             value={stackFilter}
             onChange={setStackFilter}
             getLabel={(stack) => stack}
+            label={t(ui.projects.filterByStack)}
           />
         </div>
       </div>
@@ -549,7 +554,7 @@ export function Projects() {
 
       <div className="mt-8 flex justify-center">
         <Button asChild variant="link" className="text-muted-foreground">
-          <a href="https://github.com/alexmoreau-dev" target="_blank" rel="noreferrer">
+          <a href="https://github.com/alexmoreau-dev" target="_blank" rel="noreferrer noopener">
             <Github data-icon="inline-start" />
             {t(ui.projects.moreOnGithub)}
           </a>
