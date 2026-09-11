@@ -410,39 +410,6 @@ function ProjectCard({ view, labels }: { view: ProjectView; labels: Labels }) {
   )
 }
 
-const ALL_KINDS: ProjectKind[] = ["personal", "academic", "client", "oss"]
-
-function FilterChips<T extends string>({
-  options,
-  value,
-  onChange,
-  getLabel,
-  label,
-}: {
-  options: readonly T[]
-  value: T | "all"
-  onChange: (next: T | "all") => void
-  getLabel: (option: T) => string
-  label: string
-}) {
-  const { t } = useI18n()
-  return (
-    <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
-      {(["all", ...options] as const).map((option) => (
-        <Button
-          key={option}
-          variant={value === option ? "default" : "outline"}
-          size="sm"
-          aria-pressed={value === option}
-          onClick={() => onChange(option)}
-        >
-          {option === "all" ? t(ui.projects.all) : getLabel(option as T)}
-        </Button>
-      ))}
-    </div>
-  )
-}
-
 function ProjectCardSkeleton() {
   return (
     <Card className="flex h-full flex-col overflow-hidden pt-0">
@@ -474,22 +441,6 @@ export function Projects() {
   const { t } = useI18n()
   const labels = useProjectLabels(t)
   const { views, loading, source, retry } = useProjectViews()
-  const [kindFilter, setKindFilter] = useState<ProjectKind | "all">("all")
-  const [stackFilter, setStackFilter] = useState<string>("all")
-
-  const stacks = useMemo(() => {
-    const seen = new Set<string>()
-    for (const view of views) {
-      for (const tech of view.dto.stack) seen.add(tech)
-    }
-    return [...seen]
-  }, [views])
-
-  const visible = views.filter(
-    (view) =>
-      (kindFilter === "all" || view.dto.kind === kindFilter) &&
-      (stackFilter === "all" || view.dto.stack.includes(stackFilter))
-  )
 
   return (
     <section id="projects" className="scroll-mt-20 py-24">
@@ -507,49 +458,18 @@ export function Projects() {
         </div>
       )}
 
-      <div className="flex flex-col gap-3 pb-8">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="w-14 shrink-0 text-xs font-medium text-muted-foreground">
-            {t(ui.projects.filterByType)}
-          </span>
-          <FilterChips
-            options={ALL_KINDS}
-            value={kindFilter}
-            onChange={setKindFilter}
-            getLabel={(kind) => labels.kind[kind]}
-            label={t(ui.projects.filterByType)}
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="w-14 shrink-0 text-xs font-medium text-muted-foreground">
-            {t(ui.projects.filterByStack)}
-          </span>
-          <FilterChips
-            options={stacks}
-            value={stackFilter}
-            onChange={setStackFilter}
-            getLabel={(stack) => stack}
-            label={t(ui.projects.filterByStack)}
-          />
-        </div>
-      </div>
-
       {loading ? (
         <div className="grid gap-5 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <ProjectCardSkeleton key={i} />
           ))}
         </div>
-      ) : visible.length > 0 ? (
+      ) : (
         <div className="grid gap-5 sm:grid-cols-2">
-          {visible.map((view) => (
+          {views.map((view) => (
             <ProjectCard key={view.dto.slug} view={view} labels={labels} />
           ))}
         </div>
-      ) : (
-        <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          {t(ui.projects.noResults)}
-        </p>
       )}
 
       <div className="mt-8 flex justify-center">

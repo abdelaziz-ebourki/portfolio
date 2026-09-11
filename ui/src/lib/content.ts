@@ -114,9 +114,6 @@ export const ui = {
     video: { en: "Video", fr: "Vidéo", ar: "فيديو" },
     closeViewer: { en: "Close viewer", fr: "Fermer la visionneuse", ar: "إغلاق العارض" },
     openViewer: { en: "Open image viewer", fr: "Ouvrir la visionneuse", ar: "فتح العارض" },
-    all: { en: "All", fr: "Tous", ar: "الكل" },
-    filterByType: { en: "Type", fr: "Type", ar: "النوع" },
-    filterByStack: { en: "Stack", fr: "Stack", ar: "التقنيات" },
     present: { en: "Present", fr: "Aujourd'hui", ar: "حتى الآن" },
     statusShipped: { en: "Shipped", fr: "Livré", ar: "مُطلق" },
     statusInProgress: { en: "In progress", fr: "En cours", ar: "قيد العمل" },
@@ -128,11 +125,6 @@ export const ui = {
     kindOss: { en: "Open source", fr: "Open source", ar: "مفتوح المصدر" },
     roleSolo: { en: "Solo", fr: "Solo", ar: "فردي" },
     roleTeam: { en: "Team", fr: "Équipe", ar: "فريق" },
-    noResults: {
-      en: "No projects match these filters.",
-      fr: "Aucun projet ne correspond à ces filtres.",
-      ar: "لا توجد مشاريع تطابق هذه المرشحات.",
-    },
     moreOnGithub: {
       en: "More experiments on GitHub",
       fr: "Plus d'expériences sur GitHub",
