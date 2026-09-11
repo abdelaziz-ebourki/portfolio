@@ -79,11 +79,11 @@ cp .env.example .env   # fill GITHUB_TOKEN / GITHUB_WEBHOOK_SECRET / ADMIN_TOKEN
 docker compose up -d --build
 ```
 
-| Service | URL                       | Notes                              |
-|---------|---------------------------|------------------------------------|
-| UI      | http://localhost:8083     | nginx; `/api/*` proxied to `api`   |
-| API     | http://localhost:8082/api | `API_PORT` sets the host port      |
-| DB      | localhost:5432            | `DB_*` credentials in `.env`       |
+| Service | URL                                | Notes                              |
+|---------|------------------------------------|------------------------------------|
+| UI      | http://localhost:8083              | nginx; `/api/*` proxied to `api`   |
+| API     | http://localhost:${API_PORT}/api   | `API_PORT` sets the host port (this machine: `8082`) |
+| DB      | localhost:5432                     | `DB_*` credentials in `.env`       |
 
 Health: `GET /api/health` → `{"status":"UP"}`.
 
@@ -118,18 +118,8 @@ Local dev (no compose): `./mvnw test` in `api/` (needs `DB_URL`, Postgres),
 | GET    | `/api/admin/messages`         | bearer          | Latest 50 inbox messages                 |
 | PATCH  | `/api/admin/messages/{id}`    | bearer          | Mark message read                        |
 
-## Roadmap
+## Follow-ups
 
-- [x] Define the `.portfolio.json` manifest schema
-- [x] Scaffold `api/` (Spring Boot 4 + PostgreSQL + Flyway)
-- [x] Scaffold `ui/` (Vite + React + TypeScript)
-- [x] Webhook receiver with HMAC signature verification (+ idempotent deliveries)
-- [x] Fetch `.portfolio.json` & cover via GitHub Contents API
-- [x] Project upsert logic (SHA-idempotent)
-- [x] Project list UI with previews
-- [x] Wire UI to live API (labelled demo fallback + retry when unreachable)
-- [x] Contact inbox (throttled, honeypot, admin read)
-- [x] Admin sync + message endpoints (bearer, fail-closed)
-- [x] Trilingual UI (en/fr/ar)
-- [x] Docker Compose (db + api + nginx UI) for local development
-- [x] CI pipeline (API tests + coverage gate, UI tests/build/lint, compose smoke)
+The build is complete. Remaining work (content + tech debt) is tracked in
+issues [#5](https://github.com/abdelaziz-ebourki/portfolio/issues/5) and
+[#6](https://github.com/abdelaziz-ebourki/portfolio/issues/6).
