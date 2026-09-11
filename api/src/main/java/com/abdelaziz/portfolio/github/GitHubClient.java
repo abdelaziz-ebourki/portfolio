@@ -6,10 +6,13 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,18 +33,27 @@ public class GitHubClient {
 
     private static final String MANIFEST_PATH = ".portfolio.json";
 
-    private final HttpClient http = HttpClient.newHttpClient();
+    private final HttpClient http = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+    private final Duration requestTimeout;
     private final ObjectMapper mapper;
     private final String baseUrl;
     private final String token;
 
+    @Autowired
     public GitHubClient(
             ObjectMapper mapper,
             @Value("${github.api-base-url:https://api.github.com}") String baseUrl,
             @Value("${github.token:}") String token) {
+        this(mapper, baseUrl, token, Duration.ofSeconds(10));
+    }
+
+    GitHubClient(ObjectMapper mapper, String baseUrl, String token, Duration requestTimeout) {
         this.mapper = mapper;
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.token = token == null ? "" : token;
+        this.requestTimeout = requestTimeout;
     }
 
     public record TextFile(String content, String sha) {
@@ -66,6 +78,7 @@ public class GitHubClient {
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(url))
                 .header("Accept", "application/vnd.github+json")
                 .header("X-GitHub-Api-Version", "2022-11-28")
+                .timeout(requestTimeout)
                 .GET();
         if (!token.isBlank()) {
             request.header("Authorization", "Bearer " + token);
@@ -76,6 +89,8 @@ public class GitHubClient {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new GitHubClientException(502, "GitHub request interrupted for " + repo);
+        } catch (HttpTimeoutException e) {
+            throw new GitHubClientException(504, "GitHub request timed out for " + repo);
         } catch (IOException e) {
             throw new GitHubClientException(502, "GitHub request failed for " + repo + ": " + e.getMessage());
         }
@@ -115,7 +130,12 @@ public class GitHubClient {
             throw new GitHubClientException(413,
                     path + " in repo " + repo + " exceeds size cap (" + size + " bytes)");
         }
-        byte[] bytes = Base64.getMimeDecoder().decode(meta.path("content").asText(""));
+        final byte[] bytes;
+        try {
+            bytes = Base64.getMimeDecoder().decode(meta.path("content").asText(""));
+        } catch (IllegalArgumentException e) {
+            throw new GitHubClientException(502, "GitHub returned bad base64 for " + path + " in repo " + repo);
+        }
         if (bytes.length > cap) {
             throw new GitHubClientException(413,
                     path + " in repo " + repo + " exceeds size cap (" + bytes.length + " bytes)");
@@ -124,12 +144,16 @@ public class GitHubClient {
     }
 
     private String contentsUrl(String repo, String path, String ref) {
-        String encoded = Arrays.stream(path.split("/"))
+        String encoded = encodeSegments(path);
+        String url = baseUrl + "/repos/" + encodeSegments(repo) + "/contents/" + encoded;
+        return ref != null ? url + "?ref=" + URLEncoder.encode(ref, StandardCharsets.UTF_8) : url;
+    }
+
+    private static String encodeSegments(String value) {
+        return Arrays.stream(value.split("/", -1))
                 .map(segment -> URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"))
                 .reduce((a, b) -> a + "/" + b)
                 .orElse("");
-        String url = baseUrl + "/repos/" + repo + "/contents/" + encoded;
-        return ref != null ? url + "?ref=" + URLEncoder.encode(ref, StandardCharsets.UTF_8) : url;
     }
 
     private static String guessContentType(String path) {

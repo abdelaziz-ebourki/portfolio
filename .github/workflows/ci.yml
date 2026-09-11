@@ -45,7 +45,8 @@ jobs:
 
       - name: Run tests
         working-directory: api
-        run: ./mvnw -B test
+        # verify (not test): the JaCoCo coverage gate binds to verify.
+        run: ./mvnw -B verify
 
   ui:
     name: UI tests, build, lint

@@ -83,6 +83,30 @@ class ContactControllerTest {
     }
 
     @Test
+    void honeypotWithGarbageStillPretendsSuccess() throws Exception {
+        mvc.perform(post("/contact")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"\",\"email\":\"not-an-email\",\"message\":\"\","
+                                + "\"company\":\"" + "x".repeat(500) + "\"}"))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.status").value("received"));
+
+        verify(messages, never()).save(any());
+        verify(throttle, never()).tryAcquire(any());
+    }
+
+    @Test
+    void malformedTypesRejectedAsBadRequest() throws Exception {
+        mvc.perform(post("/contact")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":{},\"email\":\"jane@company.com\",\"message\":\"hi\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+
+        verify(messages, never()).save(any());
+    }
+
+    @Test
     void throttledSenderGets429() throws Exception {
         when(throttle.tryAcquire(any())).thenReturn(false);
 

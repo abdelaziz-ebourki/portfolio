@@ -118,6 +118,12 @@ export const ui = {
       fr: "Plus d'expériences sur GitHub",
       ar: "المزيد من التجارب على GitHub",
     },
+    demoDataNotice: {
+      en: "Showing demo data — the live API is unreachable.",
+      fr: "Données de démonstration — l'API est injoignable.",
+      ar: "عرض بيانات تجريبية — تعذر الوصول إلى الواجهة.",
+    },
+    retry: { en: "Retry", fr: "Réessayer", ar: "إعادة المحاولة" },
   } satisfies Record<string, Localized>,
 
   education: {

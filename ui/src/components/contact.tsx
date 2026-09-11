@@ -149,7 +149,7 @@ export function Contact() {
             className="group flex items-center gap-3 rounded-none border border-border bg-card/60 p-4 transition-colors hover:border-foreground/25"
           >
             <Github className="size-4.5 text-muted-foreground transition-colors group-hover:text-primary" />
-            <span className="text-sm">github/{persona.initials.toLowerCase()}</span>
+            <span className="text-sm">github/{persona.github.split("/").pop()}</span>
           </a>
 
           <a
@@ -159,7 +159,7 @@ export function Contact() {
             className="group flex items-center gap-3 rounded-none border border-border bg-card/60 p-4 transition-colors hover:border-foreground/25"
           >
             <Linkedin className="size-4.5 text-muted-foreground transition-colors group-hover:text-primary" />
-            <span className="text-sm">in/{persona.initials.toLowerCase()}</span>
+            <span className="text-sm">in/{persona.linkedin.split("/").pop()}</span>
           </a>
         </div>
       </div>

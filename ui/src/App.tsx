@@ -10,6 +10,7 @@ import { TerminalSection } from "@/components/terminal-section"
 import { Contact } from "@/components/contact"
 import { Footer } from "@/components/footer"
 import { Reveal } from "@/components/reveal"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 export default function App() {
   return (
@@ -19,7 +20,9 @@ export default function App() {
         <div aria-hidden className="crt-scanlines" />
         <Navbar />
         <main>
-          <Hero />
+          <ErrorBoundary>
+            <Hero />
+          </ErrorBoundary>
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <Reveal>
               <About />
@@ -28,7 +31,9 @@ export default function App() {
               <Skills />
             </Reveal>
             <Reveal>
-              <Projects />
+              <ErrorBoundary>
+                <Projects />
+              </ErrorBoundary>
             </Reveal>
             <Reveal>
               <Education />

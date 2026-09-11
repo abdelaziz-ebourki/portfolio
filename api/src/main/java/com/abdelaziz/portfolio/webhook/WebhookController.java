@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * <ul>
  *   <li>{@code ping} → 200, recorded.</li>
  *   <li>{@code push} touching {@code .portfolio.json} or cover assets → 202,
- *       recorded as {@code accepted} (phase 3 wires in the actual sync).</li>
+ *       recorded as {@code accepted} (sync runs inline; failures are logged
+ *       and surface via the admin re-sync endpoint).</li>
  *   <li>Anything else → 200, recorded as {@code ignored}.</li>
  *   <li>Retried deliveries ({@code X-GitHub-Delivery} seen before) → 200
  *       {@code duplicate}, no double processing.</li>
@@ -70,20 +72,28 @@ public class WebhookController {
             return status(HttpStatus.BAD_REQUEST, "error", "payload is not JSON");
         }
 
+        // Duplicate guard runs before any branch (including ping): retried
+        // deliveries must never hit the PK insert twice.
+        if (deliveryId != null && deliveries.existsById(deliveryId)) {
+            return status(HttpStatus.OK, "status", "duplicate");
+        }
+
         if ("ping".equals(event)) {
             record(deliveryId, event, null, "ping");
             return status(HttpStatus.OK, "status", "pong");
         }
 
-        if (deliveryId != null && deliveries.existsById(deliveryId)) {
+        String repo = WebhookPushInspector.repoFullName(payload);
+        String action = "push".equals(event) && repo != null
+                && WebhookPushInspector.touchesPortfolioFiles(payload)
+                        ? "accepted"
+                        : "ignored";
+        try {
+            record(deliveryId, event, repo, action);
+        } catch (DataIntegrityViolationException e) {
+            // Lost a concurrent-delivery race; the other thread owns it.
             return status(HttpStatus.OK, "status", "duplicate");
         }
-
-        String repo = WebhookPushInspector.repoFullName(payload);
-        String action = "push".equals(event) && WebhookPushInspector.touchesPortfolioFiles(payload)
-                ? "accepted"
-                : "ignored";
-        record(deliveryId, event, repo, action);
 
         if (!"accepted".equals(action)) {
             return status(HttpStatus.OK, "status", "ignored");

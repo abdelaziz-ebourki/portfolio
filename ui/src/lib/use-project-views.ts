@@ -6,12 +6,14 @@ export type UseProjectViewsResult = {
   views: ProjectView[]
   loading: boolean
   source: "live" | "fallback"
+  retry: () => void
 }
 
-/** Live fetch with silent static fallback. Abort-safe. */
+/** Live fetch with clearly-labelled static fallback. Abort-safe. */
 export function useProjectViews(): UseProjectViewsResult {
   const [views, setViews] = useState<ProjectView[] | null>(null)
   const [source, setSource] = useState<"live" | "fallback">("live")
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -43,8 +45,14 @@ export function useProjectViews(): UseProjectViewsResult {
       alive = false
       controller.abort()
     }
-  }, [])
+  }, [attempt])
 
-  if (views === null) return { views: [], loading: true, source }
-  return { views, loading: false, source }
+  const retry = () => {
+    setViews(null)
+    setSource("live")
+    setAttempt((n) => n + 1)
+  }
+
+  if (views === null) return { views: [], loading: true, source, retry }
+  return { views, loading: false, source, retry }
 }

@@ -117,6 +117,41 @@ class WebhookControllerTest {
         verify(deliveries, never()).save(any());
     }
 
+    @Test
+    void dropsRetriedPingAsDuplicate() throws Exception {
+        when(verifier.valid(any(), any())).thenReturn(true);
+        when(deliveries.existsById("delivery-ping-1")).thenReturn(true);
+
+        mvc.perform(post("/webhooks/github")
+                        .header("X-Hub-Signature-256", SIGNATURE)
+                        .header("X-GitHub-Event", "ping")
+                        .header("X-GitHub-Delivery", "delivery-ping-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("duplicate"));
+
+        verify(deliveries, never()).save(any());
+    }
+
+    @Test
+    void ignoresPushWithoutRepository() throws Exception {
+        when(verifier.valid(any(), any())).thenReturn(true);
+        when(deliveries.existsById("delivery-push-3")).thenReturn(false);
+
+        mvc.perform(post("/webhooks/github")
+                        .header("X-Hub-Signature-256", SIGNATURE)
+                        .header("X-GitHub-Event", "push")
+                        .header("X-GitHub-Delivery", "delivery-push-3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"after": "abc", "commits": [{"added": [".portfolio.json"], "modified": [], "removed": []}]}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ignored"));
+
+        verify(sync, never()).sync(any(), any());
+    }
+
     private static byte[] pushTouchingManifest() {
         return pushJson("""
                 {"added": [".portfolio.json"], "modified": ["src/Main.java"], "removed": []}""");

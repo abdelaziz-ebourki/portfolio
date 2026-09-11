@@ -470,7 +470,7 @@ function ProjectCardSkeleton() {
 export function Projects() {
   const { t } = useI18n()
   const labels = useProjectLabels(t)
-  const { views, loading } = useProjectViews()
+  const { views, loading, source, retry } = useProjectViews()
   const [kindFilter, setKindFilter] = useState<ProjectKind | "all">("all")
   const [stackFilter, setStackFilter] = useState<string>("all")
 
@@ -491,6 +491,18 @@ export function Projects() {
   return (
     <section id="projects" className="scroll-mt-20 py-24">
       <SectionHeading eyebrow={ui.projects.subtitle} title={ui.projects.title} />
+
+      {!loading && source === "fallback" && (
+        <div
+          role="status"
+          className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm"
+        >
+          <span className="text-amber-200">{t(ui.projects.demoDataNotice)}</span>
+          <Button variant="outline" size="sm" onClick={retry}>
+            {t(ui.projects.retry)}
+          </Button>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 pb-8">
         <div className="flex flex-wrap items-center gap-3">

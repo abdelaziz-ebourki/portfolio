@@ -150,4 +150,79 @@ class GitHubClientTest {
                 .isInstanceOf(GitHubClientException.class)
                 .hasMessageContaining("bad JSON");
     }
+
+    @Test
+    void mapsSlowGitHubToTimeout() {
+        HttpServer slow = null;
+        try {
+            slow = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            slow.createContext("/", exchange -> {
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                byte[] body = "{}".getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, body.length);
+                try (OutputStream out = exchange.getResponseBody()) {
+                    out.write(body);
+                }
+            });
+            slow.start();
+            GitHubClient impatient = new GitHubClient(
+                    new ObjectMapper(),
+                    "http://127.0.0.1:" + slow.getAddress().getPort(),
+                    "test-token",
+                    java.time.Duration.ofMillis(200));
+
+            assertThatThrownBy(() -> impatient.fetchManifest("example/taskboard", null))
+                    .isInstanceOf(GitHubClientException.class)
+                    .satisfies(e -> assertThat(((GitHubClientException) e).status()).isEqualTo(504));
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        } finally {
+            if (slow != null) {
+                slow.stop(0);
+            }
+        }
+    }
+
+    @Test
+    void rejectsBadBase64FromGitHub() {
+        next = new StubResponse(200,
+                "{\"type\":\"file\",\"encoding\":\"base64\",\"size\":4,\"sha\":\"abc\",\"content\":\"!!!not-base64!!!\"}");
+        assertThatThrownBy(() -> client.fetchManifest("example/taskboard", null))
+                .isInstanceOf(GitHubClientException.class)
+                .hasMessageContaining("bad base64");
+    }
+
+    @Test
+    void encodesRepoSegmentsInUrl() {
+        AtomicReference<String> lastPath = new AtomicReference<>();
+        HttpServer probe = null;
+        try {
+            probe = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            probe.createContext("/", exchange -> {
+                lastPath.set(exchange.getRequestURI().getRawPath());
+                byte[] body = "{\"message\":\"Not Found\"}".getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(404, body.length);
+                try (OutputStream out = exchange.getResponseBody()) {
+                    out.write(body);
+                }
+            });
+            probe.start();
+            GitHubClient probeClient = new GitHubClient(
+                    new ObjectMapper(), "http://127.0.0.1:" + probe.getAddress().getPort(), "test-token");
+
+            assertThatThrownBy(() -> probeClient.fetchManifest("exam ple/task board", null))
+                    .isInstanceOf(GitHubFileNotFoundException.class);
+            assertThat(lastPath.get()).isEqualTo("/repos/exam%20ple/task%20board/contents/.portfolio.json");
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        } finally {
+            if (probe != null) {
+                probe.stop(0);
+            }
+        }
+    }
 }
