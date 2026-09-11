@@ -117,9 +117,3 @@ Local dev (no compose): `./mvnw test` in `api/` (needs `DB_URL`, Postgres),
 | POST   | `/api/admin/sync`             | bearer          | `{"repo":"owner/name","ref?":"main"}`    |
 | GET    | `/api/admin/messages`         | bearer          | Latest 50 inbox messages                 |
 | PATCH  | `/api/admin/messages/{id}`    | bearer          | Mark message read                        |
-
-## Follow-ups
-
-The build is complete. Remaining work (content + tech debt) is tracked in
-issues [#5](https://github.com/abdelaziz-ebourki/portfolio/issues/5) and
-[#6](https://github.com/abdelaziz-ebourki/portfolio/issues/6).
