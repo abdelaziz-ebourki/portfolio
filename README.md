@@ -40,7 +40,58 @@ flowchart LR
 Hybrid approach:
 
 - **Cover** — one screenshot committed to the project repo, referenced by path in `.portfolio.json` (`cover`, nullable); shown as the card hero image, click opens a zoom viewer
-- **Live demo** *(optional)* — a `demo_url` opened as an external link, never embedded (most sites block iframing)
+- **Live demo** *(optional)* — a `links.demo` URL opened as an external link, never embedded (most sites block iframing)
+
+## Showcase Repos
+
+How to ready a repo so it renders here. Do this per project repo (docs phase first, sync second).
+
+### Checklist
+
+- Repo is public, or `GITHUB_TOKEN` has read access to it.
+- `.portfolio.json` committed at the repo root on `main` (or the `ref` you sync).
+- Cover file committed in the same repo/branch when `cover` is set, e.g. `docs/cover.png`.
+- Push to `main` (webhook path) or run manual sync (backfill path). Verify with `GET /api/projects`.
+
+### Manifest authoring
+
+Source of truth: `api/src/main/resources/portfolio-manifest-schema.json` (draft 2020-12, `additionalProperties: false`).
+A minimal copy-pasteable example lives in `api/src/test/resources/fixtures/manifest-valid.json`.
+
+Required top-level keys: `slug`, `name`, `tagline`, `status`, `role`, `kind`, `period`, `stack`, `repos`, `links`, `highlights`.
+`name`/`tagline` are `{ "en": "..." }` objects (`en` required, `fr`/`ar` optional); `highlights` is `{ "en": [...] }`.
+
+```json
+{
+  "slug": "taskboard",
+  "name": { "en": "Taskboard" },
+  "tagline": { "en": "Kanban board with realtime collaboration." },
+  "status": "shipped",
+  "role": "solo",
+  "kind": "personal",
+  "period": { "start": "2024-02", "end": "2024-06" },
+  "stack": ["Java", "Spring Boot", "React"],
+  "repos": [{ "label": "monorepo", "url": "https://github.com/example/taskboard" }],
+  "links": { "demo": "https://taskboard.example.com" },
+  "highlights": { "en": ["Drag-and-drop board", "Realtime sync"] },
+  "cover": {
+    "path": "docs/cover.png",
+    "alt": { "en": "Taskboard kanban view" },
+    "kind": "image"
+  },
+  "featured": true,
+  "displayOrder": 0
+}
+```
+
+Rules that fail sync when violated:
+
+- `slug`: kebab-case, `^[a-z0-9]+(?:-[a-z0-9]+)*$`. Unique across repos; reusing a slug from another repo returns `409` on manual sync.
+- `status`: `shipped` | `in-progress` | `maintained` | `archived`. `role`: `solo` | `team`. `kind`: `personal` | `academic` | `client` | `oss`.
+- `period.start` (and `period.end` when set): `YYYY-MM`.
+- `cover.path`: repo-relative file path only — never a URL, never absolute, never containing `..` (e.g. `docs/cover.png`). A declared cover must be fetchable; a missing/unreadable cover fails the whole sync. Omit `cover` when there is no screenshot yet.
+- `featured`/`displayOrder`: control sort order (`featured` first, then `displayOrder` ascending).
+- Unknown keys are rejected by the schema; invalid manifests return `422` with `violations` on manual sync and are logged (delivery still `202`) on webhook sync.
 
 ## Tech Stack
 
@@ -91,6 +142,25 @@ Local dev (no compose): `./mvnw test` in `api/` (needs `DB_URL`, Postgres),
 `npm run dev` in `ui/` (vite proxies `/api` to `localhost:${API_PORT:-8080}`).
 `npm test`, `npm run build`, `npm run lint` in `ui/`; `npx fallow audit` for static analysis.
 
+Compose sets `DB_URL=jdbc:postgresql://db:5432/${DB_NAME}` for the `api` container
+(`docker-compose.yml`); bare `./mvnw` defaults to `jdbc:postgresql://localhost:5432/portfolio`
+(`api/src/main/resources/application.yml`). Set `DB_URL` explicitly when your DB is elsewhere.
+
+### Secrets walkthrough
+
+All three are fail-closed when blank — see `api/src/main/resources/application.yml`:
+
+1. Generate two random secrets (webhook + admin are independent):
+   ```bash
+   openssl rand -hex 32  # use once for GITHUB_WEBHOOK_SECRET
+   openssl rand -hex 32  # use once for ADMIN_TOKEN
+   ```
+2. Create a fine-grained PAT with `Contents:read` on the showcase repos only, then set `GITHUB_TOKEN`.
+   Without it, manifest/cover fetches fail (`502` on manual sync); webhooks are rejected (`401`) when
+   `GITHUB_WEBHOOK_SECRET` is blank, and `POST /api/admin/sync` returns `503` when `ADMIN_TOKEN` is blank.
+3. Put all three in `.env` (never commit it), then `docker compose up -d --build`.
+4. Never reuse dev defaults (`portfolio` DB password, empty tokens) in prod.
+
 ### Environment
 
 | Variable               | Used by      | Default              | Notes                                      |
@@ -117,3 +187,45 @@ Local dev (no compose): `./mvnw test` in `api/` (needs `DB_URL`, Postgres),
 | POST   | `/api/admin/sync`             | bearer          | `{"repo":"owner/name","ref?":"main"}`    |
 | GET    | `/api/admin/messages`         | bearer          | Latest 50 inbox messages                 |
 | PATCH  | `/api/admin/messages/{id}`    | bearer          | Mark message read                        |
+
+### Webhook setup
+
+Receiver: `POST /api/webhooks/github` (`api/.../webhook/WebhookController.java`).
+
+1. Repo → Settings → Webhooks → Add webhook: payload URL `http(s)://<api-host>/api/webhooks/github`,
+   content type `application/json`, secret = `GITHUB_WEBHOOK_SECRET`, events `push` + `ping`.
+2. `ping` should return `200 {"status":"pong"}`. A `push` to `main` touching `.portfolio.json` (or a cover
+   asset `png|jpg|jpeg|gif|webp|avif|mp4|webm`) returns `202 {"status":"accepted"}` and syncs inline;
+   other pushes return `200 {"status":"ignored"}`, retried deliveries `200 {"status":"duplicate"}`.
+3. Missing/bad `X-Hub-Signature-256` returns `401`. Sync failures never fail the delivery (GitHub would
+   retry into a `duplicate`); check `docker compose logs api` and re-run via manual sync below.
+
+### Manual sync (backfill / recovery)
+
+`POST /api/admin/sync` (`api/.../sync/SyncAdminController.java`), bearer `ADMIN_TOKEN`:
+
+```bash
+curl -X POST "http://localhost:${API_PORT:-8082}/api/admin/sync" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"repo":"owner/name","ref":"main"}'
+```
+
+- `200` → `{"slug":"...","syncedSha":"...","hasCover":true}`.
+- `503` admin sync not configured (blank `ADMIN_TOKEN`); `401` bad token; `400` repo must look like `owner/name`;
+  `422` invalid manifest (body includes `violations`); `404` manifest/cover not found; `502` GitHub upstream failure;
+  `409` slug already claimed by another repo.
+- Verify with `GET /api/projects` and `GET /api/projects/{slug}/cover`.
+
+### Verify & troubleshoot
+
+```bash
+docker compose up -d --build
+curl -s http://localhost:${API_PORT:-8082}/api/health   # {"status":"UP"}
+curl -s http://localhost:${API_PORT:-8082}/api/projects | head -c 500
+docker compose logs api  # sync failures surface here; re-run manual sync
+```
+
+- `[]` from `/api/projects` means no successful sync yet — the UI then shows clearly-labelled demo data.
+- `API_PORT` is host-only (container stays `8080`); on this machine `8080/8081` are taken, so use `API_PORT=8082`.
+- JPA is `validate` + Flyway `V1..V4`: schema changes go through `api/src/main/resources/db/migration/`, never `ddl-auto: update`.
