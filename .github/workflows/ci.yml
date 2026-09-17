@@ -15,6 +15,7 @@ jobs:
   api:
     name: API tests (incl. JaCoCo gate)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
     services:
@@ -51,6 +52,7 @@ jobs:
   ui:
     name: UI tests, build, lint
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -81,6 +83,7 @@ jobs:
   compose:
     name: Compose build + smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
     env:
@@ -97,27 +100,29 @@ jobs:
 
       - name: Wait for health
         run: |
+          api_id=$(docker compose ps -q api)
+          ui_id=$(docker compose ps -q ui)
           for i in $(seq 1 30); do
-            api=$(docker inspect --format='{{.State.Health.Status}}' portfolio-api-1 2>/dev/null)
-            ui=$(docker inspect --format='{{.State.Health.Status}}' portfolio-ui-1 2>/dev/null)
+            api=$(docker inspect --format='{{.State.Health.Status}}' "$api_id" 2>/dev/null)
+            ui=$(docker inspect --format='{{.State.Health.Status}}' "$ui_id" 2>/dev/null)
             if [ "$api" = "healthy" ] && [ "$ui" = "healthy" ]; then echo "stack healthy"; break; fi
             sleep 10
           done
-          [ "$(docker inspect --format='{{.State.Health.Status}}' portfolio-api-1)" = "healthy" ]
-          [ "$(docker inspect --format='{{.State.Health.Status}}' portfolio-ui-1)" = "healthy" ]
+          [ "$(docker inspect --format='{{.State.Health.Status}}' "$api_id")" = "healthy" ]
+          [ "$(docker inspect --format='{{.State.Health.Status}}' "$ui_id")" = "healthy" ]
 
       - name: Smoke test
         run: |
-          curl -fsS http://localhost:8082/api/health | grep -q '"status":"UP"'
-          html=$(curl -fsS http://localhost:8083/)
+          curl -fsS http://localhost:${API_PORT}/api/health | grep -q '"status":"UP"'
+          html=$(curl -fsS http://localhost:${UI_PORT}/)
           echo "$html" | grep -qi '<!doctype html>'
-          curl -fsS http://localhost:8083/api/health | grep -q '"status":"UP"'
-          curl -fsS http://localhost:8083/api/projects
+          curl -fsS http://localhost:${UI_PORT}/api/health | grep -q '"status":"UP"'
+          curl -fsS http://localhost:${UI_PORT}/api/projects
           # SPA fallback for client routes
-          curl -fsS -o /dev/null http://localhost:8083/projects
+          curl -fsS -o /dev/null http://localhost:${UI_PORT}/projects
           # Hashed bundle serves with immutable cache
           asset=$(echo "$html" | grep -o '/assets/[^"]*\.js' | head -1)
-          curl -fsSI "http://localhost:8083$asset" | grep -qi 'immutable'
+          curl -fsSI "http://localhost:${UI_PORT}$asset" | grep -qi 'immutable'
 
       - name: Tear down
         if: always()

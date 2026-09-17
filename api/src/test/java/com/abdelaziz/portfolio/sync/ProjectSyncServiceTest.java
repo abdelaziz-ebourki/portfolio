@@ -124,14 +124,33 @@ class ProjectSyncServiceTest {
     }
 
     @Test
-    void failsWhenCoverAssetMissing() {
+    void syncsCoverLessWhenCoverAssetMissing() {
         when(github.fetchManifest("example/taskboard", null))
                 .thenReturn(new GitHubClient.TextFile(Fixtures.read("manifest-valid.json"), "blob4"));
         when(github.fetchCover("example/taskboard", "docs/cover.png", null))
                 .thenThrow(new GitHubFileNotFoundException("example/taskboard", "docs/cover.png"));
+        when(projects.findByRepoFullName("example/taskboard")).thenReturn(Optional.empty());
+        when(projects.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Project project = sync.sync("example/taskboard", null);
+
+        assertThat(project.getSlug()).isEqualTo("taskboard");
+        assertThat(project.getManifest()).doesNotContain("\"data\"");
+        assertThat(project.getManifest()).doesNotContain("\"cover\"");
+        ArgumentCaptor<Project> saved = ArgumentCaptor.forClass(Project.class);
+        verify(projects).save(saved.capture());
+        assertThat(saved.getValue().getManifest()).doesNotContain("\"cover\"");
+    }
+
+    @Test
+    void failsWhenCoverFetchFailsUpstream() {
+        when(github.fetchManifest("example/taskboard", null))
+                .thenReturn(new GitHubClient.TextFile(Fixtures.read("manifest-valid.json"), "blob5"));
+        when(github.fetchCover("example/taskboard", "docs/cover.png", null))
+                .thenThrow(new GitHubClientException(502, "GitHub request failed"));
 
         assertThatThrownBy(() -> sync.sync("example/taskboard", null))
-                .isInstanceOf(GitHubFileNotFoundException.class);
+                .isInstanceOf(GitHubClientException.class);
         verify(projects, never()).save(any());
     }
 

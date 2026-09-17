@@ -50,7 +50,7 @@ Portfolio – full-stack showcase of GitHub projects via `.portfolio.json` webho
   npx fallow dupes --mode mild
   npx fallow health --score
   ```
-- CI: `.github/workflows/fallow.yml` runs `warn` mode, posts summary + annotations, SARIF upload if GHAS enabled. Uses package.json pin, so CLI upgrades only via `ui/package.json`.
+- CI: `.github/workflows/fallow.yml` runs `warn` mode (`fail-on-issues:false`, annotations on, no PR comment, no SARIF upload). Uses package.json pin, so CLI upgrades only via `ui/package.json`.
 - Never run `fallow watch` in agent loops (non-exiting). Telemetry off by default.
 
 ## Commands
@@ -65,6 +65,6 @@ npx fallow audit
 ```
 
 ## Conventions
-- Path alias `@` → `ui/src` (`ui/vite.config.ts:10`, `ui/tsconfig.json`)
+- Path alias `@` → `ui/src` (`ui/vite.config.ts:13-16`, `ui/tsconfig.json`)
 - UI components: `ui/src/components/`, shadcn `ui/src/components/ui/`
 - Bilingual i18n via `ui/src/lib/i18n.tsx`, terminal commands `ui/src/lib/terminal-commands.ts`

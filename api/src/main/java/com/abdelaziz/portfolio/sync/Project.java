@@ -39,7 +39,7 @@ public class Project {
     private String manifest;
 
     @Column(name = "synced_sha", columnDefinition = "varchar(40)")
-    @JdbcTypeCode(SqlTypes.CHAR)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     private String syncedSha;
 
     @Column(name = "updated_at", nullable = false)

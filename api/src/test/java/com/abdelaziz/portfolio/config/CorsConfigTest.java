@@ -40,6 +40,15 @@ class CorsConfigTest {
     }
 
     @Test
+    void allowsPatchPreflightForAdminMarkRead() throws Exception {
+        mvc.perform(options("/projects")
+                        .header("Origin", "http://localhost:5173")
+                        .header("Access-Control-Request-Method", "PATCH"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"));
+    }
+
+    @Test
     void rejectsUnknownOrigin() throws Exception {
         mvc.perform(get("/projects").header("Origin", "https://evil.example.com"))
                 .andExpect(status().isForbidden());

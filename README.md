@@ -89,7 +89,7 @@ Rules that fail sync when violated:
 - `slug`: kebab-case, `^[a-z0-9]+(?:-[a-z0-9]+)*$`. Unique across repos; reusing a slug from another repo returns `409` on manual sync.
 - `status`: `shipped` | `in-progress` | `maintained` | `archived`. `role`: `solo` | `team`. `kind`: `personal` | `academic` | `client` | `oss`.
 - `period.start` (and `period.end` when set): `YYYY-MM`.
-- `cover.path`: repo-relative file path only — never a URL, never absolute, never containing `..` (e.g. `docs/cover.png`). A declared cover must be fetchable; a missing/unreadable cover fails the whole sync. Omit `cover` when there is no screenshot yet.
+- `cover.path`: repo-relative file path only — never a URL, never absolute, never containing `..` (e.g. `docs/cover.png`). A declared cover that is missing (404) is stripped and the project syncs cover-less (`hasCover:false`, UI shows gradient fallback); other cover fetch failures (auth/rate-limit/5xx) fail the sync for retry. Omit `cover` when there is no screenshot yet.
 - `featured`/`displayOrder`: control sort order (`featured` first, then `displayOrder` ascending).
 - Unknown keys are rejected by the schema; invalid manifests return `422` with `violations` on manual sync and are logged (delivery still `202`) on webhook sync.
 
@@ -211,11 +211,17 @@ curl -X POST "http://localhost:${API_PORT:-8082}/api/admin/sync" \
   -d '{"repo":"owner/name","ref":"main"}'
 ```
 
-- `200` → `{"slug":"...","syncedSha":"...","hasCover":true}`.
+- `200` → `{"slug":"...","syncedSha":"...","hasCover":true}` (`hasCover:false` when the manifest has no `cover` or the declared asset was missing and stripped).
 - `503` admin sync not configured (blank `ADMIN_TOKEN`); `401` bad token; `400` repo must look like `owner/name`;
-  `422` invalid manifest (body includes `violations`); `404` manifest/cover not found; `502` GitHub upstream failure;
+  `422` invalid manifest (body includes `violations`); `404` manifest not found (missing cover no longer 404s — it syncs cover-less); `502` GitHub upstream failure;
   `409` slug already claimed by another repo.
 - Verify with `GET /api/projects` and `GET /api/projects/{slug}/cover`.
+
+### Unpublish / slug collisions (docs-only, no delete endpoint)
+
+- There is no `DELETE /api/admin/projects`; deleted repos stay listed until removed manually from `projects` (`DELETE FROM projects WHERE repo_full_name='owner/name'`).
+- Reusing a slug from another repo returns `409` on manual sync; on webhook sync the collision is only logged (`docker compose logs api`) and the stored winner keeps serving.
+- Recovery: rename the slug in the new repo's `.portfolio.json` (or delete the stale row), then re-run manual sync.
 
 ### Verify & troubleshoot
 
@@ -229,3 +235,4 @@ docker compose logs api  # sync failures surface here; re-run manual sync
 - `[]` from `/api/projects` means no successful sync yet — the UI then shows clearly-labelled demo data.
 - `API_PORT` is host-only (container stays `8080`); on this machine `8080/8081` are taken, so use `API_PORT=8082`.
 - JPA is `validate` + Flyway `V1..V4`: schema changes go through `api/src/main/resources/db/migration/`, never `ddl-auto: update`.
+- Prod: compose has no TLS — terminate HTTPS at an external reverse proxy in front of `UI_PORT`/`API_PORT`. Change `CORS_ALLOWED_ORIGINS`, `DB_*` and all three secrets from dev defaults; `VITE_API_URL` is baked at `npm run build` (empty = same-origin `/api` via nginx).

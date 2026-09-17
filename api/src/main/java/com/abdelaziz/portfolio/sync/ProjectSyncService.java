@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.abdelaziz.portfolio.github.GitHubClient;
+import com.abdelaziz.portfolio.github.GitHubFileNotFoundException;
 import com.abdelaziz.portfolio.manifest.ManifestValidator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -64,8 +65,9 @@ public class ProjectSyncService {
     /**
      * Downloads the cover asset into {@code cover.data} (base64) and coerces
      * {@code cover.kind} to the real content type, so a mislabeled manifest
-     * can never break the UI's hover-play. A missing cover asset fails the
-     * whole sync — explicit beats silently cover-less.
+     * can never break the UI's hover-play. A declared cover that is missing
+     * in the repo (404) is stripped so the project still syncs cover-less;
+     * other cover fetch failures still fail the whole sync for retry.
      */
     private static ObjectNode requireObject(com.fasterxml.jackson.databind.JsonNode node) {
         if (!node.isObject()) {
@@ -83,7 +85,14 @@ public class ProjectSyncService {
         }
         ObjectNode cover = (ObjectNode) manifest.path("cover");
         String path = cover.path("path").asText();
-        GitHubClient.BinaryFile asset = github.fetchCover(repoFullName, path, ref);
+        final GitHubClient.BinaryFile asset;
+        try {
+            asset = github.fetchCover(repoFullName, path, ref);
+        } catch (GitHubFileNotFoundException e) {
+            log.warn("Cover missing for {} ({}), syncing cover-less", repoFullName, path);
+            manifest.remove("cover");
+            return;
+        }
         cover.put("data", Base64.getEncoder().encodeToString(asset.bytes()));
         cover.put("contentType", asset.contentType());
         cover.put("kind", coerceKind(asset.contentType()));

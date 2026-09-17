@@ -42,6 +42,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 30s
 
   ui:
     build: ./ui

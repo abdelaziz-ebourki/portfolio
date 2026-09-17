@@ -27,7 +27,7 @@ public class CorsConfig {
                                         .map(String::trim)
                                         .filter(s -> !s.isEmpty())
                                         .toArray(String[]::new))
-                        .allowedMethods("GET", "POST", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PATCH", "OPTIONS")
                         .allowedHeaders("*")
                         .exposedHeaders("ETag")
                         .maxAge(3600);
