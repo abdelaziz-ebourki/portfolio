@@ -252,7 +252,7 @@ export default function FaultyTerminal({
   const frozenTimeRef = useRef(0);
   const rafRef = useRef(0);
   const loadAnimationStartRef = useRef(0);
-  const timeOffsetRef = useRef(Math.random() * 100);
+  const timeOffsetRef = useRef(0);
   const pauseRef = useRef(pause);
   const updateRef = useRef(null);
 
@@ -283,6 +283,9 @@ export default function FaultyTerminal({
   useEffect(() => {
     const ctn = containerRef.current;
     if (!ctn) return;
+
+    // Randomize the shader clock per mount (not during render: impure).
+    timeOffsetRef.current = Math.random() * 100;
 
     const renderer = new Renderer({ dpr, powerPreference: 'low-power' });
     rendererRef.current = renderer;

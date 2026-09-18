@@ -64,6 +64,122 @@ function useIsVisible<T extends HTMLElement>(
 	return isVisible;
 }
 
+// Stagger-once flag for the typing intro. A module let (not a ref read
+// during render): TypingIntro remounts per language via key={lang}, and only
+// the very first mount ever replays the entry delays.
+let introStaggerPlayed = false;
+
+// Typing intro sequence (whoami -> name -> role) with a single riding
+// cursor. Keyed by language in the parent, so a lang switch remounts it and
+// the sequence restarts from line 0 with no set-state-in-effect sync.
+function TypingIntro({ prefersReduced }: { prefersReduced: boolean }) {
+	const { t } = useI18n();
+	const [activeLine, setActiveLine] = useState(0);
+	const [stagger] = useState(() => {
+		if (introStaggerPlayed) return 0;
+		introStaggerPlayed = true;
+		return 1;
+	});
+	const introDelay = (ms: number) => ms * stagger;
+	const advanceToName = useCallback(() => setActiveLine(1), []);
+	const advanceToRole = useCallback(() => setActiveLine(2), []);
+
+	return (
+		<>
+			<div className="font-mono text-sm text-primary/80">
+				<span className="text-muted-foreground">alex@dev:~$</span>{" "}
+				{prefersReduced ? (
+					<span className="text-primary/80">whoami</span>
+				) : (
+					<TextType
+						key="whoami"
+						text="whoami"
+						as="span"
+						className="font-mono text-sm text-primary/80"
+						typingSpeed={68}
+						initialDelay={introDelay(700)}
+						loop={false}
+						showCursor={activeLine === 0}
+						onComplete={advanceToName}
+						cursorCharacter="█"
+						cursorClassName="text-primary"
+						cursorBlinkDuration={0.55}
+					/>
+				)}
+			</div>
+
+			<h1 className="text-4xl font-bold tracking-tight text-balance crt-glow sm:text-5xl md:text-6xl">
+				{prefersReduced ? (
+					<span>
+						{persona.name}
+						<span
+							className="ms-1 inline-block animate-blink text-primary"
+							aria-hidden
+						>
+							█
+						</span>
+					</span>
+				) : (
+					// Mounts only when its turn comes: typing is gated on the
+					// previous line's completion, so lines can never overlap
+					// (fixed delays + i18n remounts used to restart the timer
+					// mid-sequence). Delay 0 — the mount itself is the cue.
+					activeLine >= 1 && (
+						<TextType
+							key={persona.name}
+							text={persona.name}
+							as="span"
+							className="font-bold tracking-tight crt-glow"
+							typingSpeed={62}
+							initialDelay={0}
+							loop={false}
+							showCursor={activeLine === 1}
+							onComplete={advanceToRole}
+							cursorCharacter="█"
+							cursorClassName="text-primary"
+							cursorBlinkDuration={0.55}
+						/>
+					)
+				)}
+			</h1>
+
+			<p className="max-w-xl text-lg text-muted-foreground text-pretty leading-8">
+				{prefersReduced ? (
+					<>
+						<span className="font-medium text-foreground">
+							{t(persona.role)}
+						</span>
+						{" — "}
+						<span className="text-foreground/85">{t(persona.tagline)}</span>
+					</>
+				) : (
+					<>
+						{activeLine >= 2 && (
+							<TextType
+								key={t(persona.role)}
+								text={t(persona.role)}
+								as="span"
+								className="font-medium text-foreground"
+								typingSpeed={38}
+								initialDelay={0}
+								loop={false}
+								showCursor={activeLine === 2}
+								cursorCharacter="█"
+								cursorClassName="text-primary"
+								cursorBlinkDuration={0.55}
+							/>
+						)}
+						<span className="ms-1 inline text-foreground/85">
+							{" — "}
+							{t(persona.tagline)}
+						</span>
+					</>
+				)}
+			</p>
+		</>
+	);
+}
+
 // fallow-ignore-next-line complexity -- hero composes 6 theme hooks + FaultyTerminal, intentional orchestration
 export function Hero() {
 	const { t, lang } = useI18n();
@@ -74,23 +190,6 @@ export function Hero() {
 	const heroRef = useRef<HTMLElement>(null);
 	const isVisible = useIsVisible(heroRef);
 	const isPaused = prefersReduced || !isVisible;
-	// Intro stagger plays once on first mount; lang-change remounts of the
-	// TextType lines (keyed by translated text) must not replay the delays.
-	const introPlayedRef = useRef(false);
-	useEffect(() => {
-		introPlayedRef.current = true;
-	}, []);
-	const introDelay = (ms: number) => (introPlayedRef.current ? 0 : ms);
-
-	// Single typing cursor: it rides the actively-typing line (whoami -> name
-	// -> role) and rests on the last one. Lines remount per language, so the
-	// cursor resets alongside them.
-	const [activeLine, setActiveLine] = useState(0);
-	useEffect(() => {
-		setActiveLine(0);
-	}, [lang]);
-	const advanceToName = useCallback(() => setActiveLine(1), []);
-	const advanceToRole = useCallback(() => setActiveLine(2), []);
 
 	const faultyTerminalProps = isLight
 		? {
@@ -158,96 +257,7 @@ export function Hero() {
 
 			<div className="pointer-events-none relative mx-auto flex w-full max-w-6xl flex-1 items-center px-4 py-24 sm:px-6">
 				<div className="flex max-w-3xl origin-center flex-col gap-6 md:scale-[1.4] md:origin-left rtl:md:origin-right">
-					<div className="font-mono text-sm text-primary/80">
-						<span className="text-muted-foreground">alex@dev:~$</span>{" "}
-						{prefersReduced ? (
-							<span className="text-primary/80">whoami</span>
-						) : (
-							<TextType
-								key="whoami"
-								text="whoami"
-								as="span"
-								className="font-mono text-sm text-primary/80"
-								typingSpeed={68}
-								initialDelay={introDelay(700)}
-								loop={false}
-								showCursor={activeLine === 0}
-								onComplete={advanceToName}
-								cursorCharacter="█"
-								cursorClassName="text-primary"
-								cursorBlinkDuration={0.55}
-							/>
-						)}
-					</div>
-
-					<h1 className="text-4xl font-bold tracking-tight text-balance crt-glow sm:text-5xl md:text-6xl">
-						{prefersReduced ? (
-							<span>
-								{persona.name}
-								<span
-									className="ms-1 inline-block animate-blink text-primary"
-									aria-hidden
-								>
-									█
-								</span>
-							</span>
-						) : (
-							// Mounts only when its turn comes: typing is gated on the
-							// previous line's completion, so lines can never overlap
-							// (fixed delays + i18n remounts used to restart the timer
-							// mid-sequence). Delay 0 — the mount itself is the cue.
-							activeLine >= 1 && (
-								<TextType
-									key={persona.name}
-									text={persona.name}
-									as="span"
-									className="font-bold tracking-tight crt-glow"
-									typingSpeed={62}
-									initialDelay={0}
-									loop={false}
-									showCursor={activeLine === 1}
-									onComplete={advanceToRole}
-									cursorCharacter="█"
-									cursorClassName="text-primary"
-									cursorBlinkDuration={0.55}
-								/>
-							)
-						)}
-					</h1>
-
-					<p className="max-w-xl text-lg text-muted-foreground text-pretty leading-8">
-						{prefersReduced ? (
-							<>
-								<span className="font-medium text-foreground">
-									{t(persona.role)}
-								</span>
-								{" — "}
-								<span className="text-foreground/85">{t(persona.tagline)}</span>
-							</>
-						) : (
-							<>
-								{activeLine >= 2 && (
-									<TextType
-										key={t(persona.role)}
-										text={t(persona.role)}
-										as="span"
-										className="font-medium text-foreground"
-										typingSpeed={38}
-										initialDelay={0}
-										loop={false}
-										showCursor={activeLine === 2}
-										cursorCharacter="█"
-										cursorClassName="text-primary"
-										cursorBlinkDuration={0.55}
-									/>
-								)}
-								<span className="ms-1 inline text-foreground/85">
-									{" — "}
-									{t(persona.tagline)}
-								</span>
-							</>
-						)}
-					</p>
+					<TypingIntro key={lang} prefersReduced={prefersReduced} />
 
 					<div className="pointer-events-auto flex flex-wrap items-center gap-3 pt-2">
 						<Button asChild size="lg">
